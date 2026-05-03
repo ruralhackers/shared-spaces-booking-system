@@ -34,11 +34,7 @@ export class SpaceAvailability {
     return new SpaceAvailability(spaceSlug, spaceName, 'occupied', 'occupied', occupiedBy, color)
   }
 
-  static closed(
-    spaceSlug: string,
-    spaceName: string,
-    color?: string | null
-  ): SpaceAvailability {
+  static closed(spaceSlug: string, spaceName: string, color?: string | null): SpaceAvailability {
     return new SpaceAvailability(spaceSlug, spaceName, 'occupied', 'closed', undefined, color)
   }
 

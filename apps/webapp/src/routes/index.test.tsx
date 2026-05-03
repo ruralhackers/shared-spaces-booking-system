@@ -4,6 +4,12 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 
 // Mock tRPC
 const mockUseQuery = mock(() => ({ data: undefined, isLoading: false, error: null }))
+const mockAvailabilityQuery = mock(() => ({
+  data: undefined,
+  isLoading: false,
+  error: null,
+  refetch: mock(() => {})
+}))
 const mockUseMutation = mock(() => ({ mutate: mock(() => {}), isPending: false }))
 const mockUseUtils = mock(() => ({
   spaces: { list: { invalidate: mock(() => {}) } }
@@ -13,7 +19,8 @@ mock.module('@/trpc/react', () => ({
   api: {
     spaces: {
       list: { useQuery: mockUseQuery },
-      book: { useMutation: mockUseMutation }
+      book: { useMutation: mockUseMutation },
+      availability: { useQuery: mockAvailabilityQuery }
     },
     useUtils: mockUseUtils
   }

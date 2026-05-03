@@ -34,5 +34,22 @@
   "bookLater": "Book later",
   "quickBook30min": "30min",
   "quickBook1h": "1h",
-  "quickBook2h": "2h"
+  "quickBook2h": "2h",
+  "bookForLater": "Book for later",
+  "tomorrow": "Tomorrow",
+  "otherDate": "Other date",
+  "chooseTime": "Choose time",
+  "from": "From",
+  "until": "Until",
+  "duration": "Duration",
+  "forTimeWindow": "For {{start}} – {{end}}",
+  "noSpacesAvailableExtended": "No spaces available at this time. Try another time or check each room's calendar.",
+  "viewDay": "View day",
+  "reserve": "Reserve",
+  "todayClosedShowingTomorrow": "Today is closed. Showing tomorrow.",
+  "minimumDuration30min": "Minimum duration is 30 minutes",
+  "endMustBeAfterStart": "End time must be after start time",
+  "cannotBookInPast": "Cannot book in the past",
+  "couldNotLoadAvailability": "Could not load availability",
+  "retry": "Retry"
 }

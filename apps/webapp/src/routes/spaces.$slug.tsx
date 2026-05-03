@@ -349,16 +349,22 @@ function SpacePage() {
       )}
 
       {/* Cancel booking dialog */}
-      {cancelDialogOpen && cancelBookingId && (
-        <CancelBookingDialog
-          bookerName={cancelBookingName}
-          nameInput={cancelNameInput}
-          onNameChange={setCancelNameInput}
-          onConfirm={handleCancelConfirm}
-          isPending={cancelMutation.isPending || cancelSeriesMutation.isPending}
-          seriesId={cancelBookingSeriesId}
-        />
-      )}
+      <CancelBookingDialog
+        open={cancelDialogOpen && !!cancelBookingId}
+        onOpenChange={(v) => {
+          if (!v) {
+            setCancelDialogOpen(false)
+            setCancelBookingId(null)
+            setCancelNameInput('')
+          }
+        }}
+        bookerName={cancelBookingName}
+        nameInput={cancelNameInput}
+        onNameChange={setCancelNameInput}
+        onConfirm={handleCancelConfirm}
+        isPending={cancelMutation.isPending || cancelSeriesMutation.isPending}
+        seriesId={cancelBookingSeriesId}
+      />
 
       {recurringResult && (
         <RecurringConfirmationDialog

@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { AvailabilityFinder } from '@/features/spaces/availability-finder'
 import { writeStoredBookerName } from '@/features/spaces/booker-name-storage'
 import { QuickBookSheet } from '@/features/spaces/quick-book-sheet'
 import { SpaceCard } from '@/features/spaces/space-card'
@@ -105,6 +106,11 @@ export function HomePage() {
           onCancel={() => setSheetState(null)}
         />
       )}
+
+      <section className="space-y-3 pt-4 border-t">
+        <h2 className="text-base font-semibold">{t('spaces:bookForLater')}</h2>
+        <AvailabilityFinder />
+      </section>
     </div>
   )
 }

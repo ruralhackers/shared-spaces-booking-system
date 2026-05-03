@@ -5,9 +5,11 @@ import { CancelBookingDialog } from './cancel-booking-dialog'
 describe('The CancelBookingDialog', () => {
   afterEach(cleanup)
 
-  test('displays a cancel button for the user', () => {
+  test('shows confirmation dialog when open is true', () => {
     render(
       <CancelBookingDialog
+        open={true}
+        onOpenChange={() => {}}
         bookerName="Ana"
         nameInput=""
         onNameChange={() => {}}
@@ -16,24 +18,24 @@ describe('The CancelBookingDialog', () => {
       />
     )
 
-    expect(screen.getByRole('button', { name: /cancel/i })).toBeDefined()
+    expect(screen.getByRole('alertdialog')).toBeDefined()
+    expect(screen.getByText(/cancel booking/i)).toBeDefined()
   })
 
-  test('shows a confirmation dialog when user initiates cancellation', () => {
+  test('does not show dialog when open is false', () => {
     render(
       <CancelBookingDialog
+        open={false}
+        onOpenChange={() => {}}
         bookerName="Ana"
-        nameInput="Ana"
+        nameInput=""
         onNameChange={() => {}}
         onConfirm={() => {}}
         isPending={false}
       />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
-
-    expect(screen.getByRole('alertdialog')).toBeDefined()
-    expect(screen.getByText(/cancel booking/i)).toBeDefined()
+    expect(screen.queryByRole('alertdialog')).toBeNull()
   })
 
   test('confirms cancellation when user accepts the dialog', () => {
@@ -41,6 +43,8 @@ describe('The CancelBookingDialog', () => {
 
     render(
       <CancelBookingDialog
+        open={true}
+        onOpenChange={() => {}}
         bookerName="Ana"
         nameInput="Ana"
         onNameChange={() => {}}
@@ -49,17 +53,19 @@ describe('The CancelBookingDialog', () => {
       />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
     fireEvent.click(screen.getByRole('button', { name: /yes, cancel/i }))
 
     expect(onConfirm).toHaveBeenCalledTimes(1)
   })
 
-  test('preserves booking when user dismisses the dialog', () => {
+  test('calls onOpenChange(false) when user dismisses the dialog', () => {
+    const onOpenChange = mock(() => {})
     const onConfirm = mock(() => {})
 
     render(
       <CancelBookingDialog
+        open={true}
+        onOpenChange={onOpenChange}
         bookerName="Ana"
         nameInput="Ana"
         onNameChange={() => {}}
@@ -68,29 +74,28 @@ describe('The CancelBookingDialog', () => {
       />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
-    const dismissButton = screen
-      .getAllByText(/^cancel$/i)
-      .find((el) => el.tagName === 'BUTTON' && !el.textContent?.includes('Yes'))
-    fireEvent.click(dismissButton as HTMLElement)
+    fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }))
 
     expect(onConfirm).not.toHaveBeenCalled()
+    expect(onOpenChange).toHaveBeenCalledWith(false)
   })
 
-  test('prevents additional cancellation attempts while one is in progress', () => {
+  test('disables confirm button while cancellation is in progress', () => {
     render(
       <CancelBookingDialog
+        open={true}
+        onOpenChange={() => {}}
         bookerName="Ana"
         nameInput="Ana"
         onNameChange={() => {}}
         onConfirm={() => {}}
-        isPending
+        isPending={true}
       />
     )
 
-    const trigger = screen.getByRole('button', { name: /cancel/i })
+    const confirmButton = screen.getByRole('button', { name: /yes, cancel/i })
 
-    expect((trigger as HTMLButtonElement).disabled).toBe(true)
+    expect((confirmButton as HTMLButtonElement).disabled).toBe(true)
   })
 
   test('notifies parent when user types in the name input', () => {
@@ -98,6 +103,8 @@ describe('The CancelBookingDialog', () => {
 
     render(
       <CancelBookingDialog
+        open={true}
+        onOpenChange={() => {}}
         bookerName="Ana"
         nameInput=""
         onNameChange={onNameChange}
@@ -115,6 +122,8 @@ describe('The CancelBookingDialog', () => {
   test('shows scope selector when booking has seriesId', () => {
     render(
       <CancelBookingDialog
+        open={true}
+        onOpenChange={() => {}}
         bookerName="Ana"
         nameInput="Ana"
         onNameChange={() => {}}
@@ -123,8 +132,6 @@ describe('The CancelBookingDialog', () => {
         seriesId="series-1"
       />
     )
-
-    fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
 
     expect(screen.getByLabelText(/this booking only/i)).toBeDefined()
     expect(screen.getByLabelText(/this and all future/i)).toBeDefined()
@@ -135,19 +142,17 @@ describe('The CancelBookingDialog', () => {
 
     render(
       <CancelBookingDialog
+        open={true}
+        onOpenChange={() => {}}
         bookerName="Ana"
         nameInput="Ana"
         onNameChange={() => {}}
         onConfirm={onConfirm}
         isPending={false}
         seriesId="series-1"
-        bookingId="booking-1"
       />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
-
-    // Select "this and future" scope
     const futureRadio = screen.getByLabelText(/this and all future/i)
     fireEvent.click(futureRadio)
 
