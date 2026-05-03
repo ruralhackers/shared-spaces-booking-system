@@ -1,3 +1,5 @@
+import { forwardRef } from 'react'
+
 interface NowIndicatorProps {
   date: string
   currentTime: Date
@@ -5,12 +7,10 @@ interface NowIndicatorProps {
   timelineStartHour: number
 }
 
-export function NowIndicator({
-  date,
-  currentTime,
-  hourRowHeight,
-  timelineStartHour
-}: NowIndicatorProps) {
+export const NowIndicator = forwardRef<HTMLDivElement, NowIndicatorProps>(function NowIndicator(
+  { date, currentTime, hourRowHeight, timelineStartHour },
+  ref
+) {
   const today = new Date().toISOString().slice(0, 10)
   if (date !== today) return null
 
@@ -20,6 +20,7 @@ export function NowIndicator({
 
   return (
     <div
+      ref={ref}
       data-testid="now-indicator"
       className="absolute left-0 right-0 z-20 flex items-center pointer-events-none"
       style={{ top: `${top}px` }}
@@ -28,4 +29,4 @@ export function NowIndicator({
       <div className="flex-1 h-px bg-red-500" />
     </div>
   )
-}
+})

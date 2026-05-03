@@ -217,20 +217,13 @@ export function DayTimeline({
 
       {/* Now indicator */}
       {isToday && (
-        <div
+        <NowIndicator
           ref={nowRef}
-          className="absolute left-0 right-0 z-20"
-          style={{
-            top: `${(currentTime.getHours() + currentTime.getMinutes() / 60 - timelineStartHour) * HOUR_ROW_HEIGHT}px`
-          }}
-        >
-          <NowIndicator
-            date={date}
-            currentTime={currentTime}
-            hourRowHeight={HOUR_ROW_HEIGHT}
-            timelineStartHour={timelineStartHour}
-          />
-        </div>
+          date={date}
+          currentTime={currentTime}
+          hourRowHeight={HOUR_ROW_HEIGHT}
+          timelineStartHour={timelineStartHour}
+        />
       )}
     </div>
   )
