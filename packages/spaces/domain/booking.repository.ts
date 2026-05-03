@@ -6,5 +6,6 @@ export interface BookingRepository {
   listAllActive(): Promise<Booking[]>
   findActiveAt(at: Date): Promise<Booking[]>
   findOverlapping(spaceId: string, startsAt: Date, endsAt: Date): Promise<Booking[]>
+  findForDate(date: Date, tz: string): Promise<Booking[]>
   save(booking: Booking): Promise<void>
 }
