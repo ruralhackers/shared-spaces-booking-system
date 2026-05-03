@@ -40,7 +40,9 @@ export function SpaceCard({ space, onQuickBook, onNavigate }: SpaceCardProps) {
       const time = currentStatus.occupiedUntil ? formatTime(currentStatus.occupiedUntil) : null
       const name = currentStatus.occupiedBy ?? ''
       const nowMs = Date.now()
-      const untilMs = currentStatus.occupiedUntil ? new Date(currentStatus.occupiedUntil).getTime() : nowMs
+      const untilMs = currentStatus.occupiedUntil
+        ? new Date(currentStatus.occupiedUntil).getTime()
+        : nowMs
       const minutes = Math.max(0, Math.round((untilMs - nowMs) / 60_000))
       return (
         <p className={hasColor ? 'text-sm text-white/80' : 'text-sm text-muted-foreground'}>
@@ -71,7 +73,12 @@ export function SpaceCard({ space, onQuickBook, onNavigate }: SpaceCardProps) {
       const visibleButtons = QUICK_DURATIONS.filter((d) => d.minutes <= freeMinutes)
       if (visibleButtons.length === 0) return null
       return (
-        <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+        // biome-ignore lint/a11y/noStaticElementInteractions: stops card click propagation
+        <div
+          className="flex gap-2 mt-3"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
           {visibleButtons.map((d) => (
             <Button
               key={d.label}
@@ -88,12 +95,13 @@ export function SpaceCard({ space, onQuickBook, onNavigate }: SpaceCardProps) {
 
     if (currentStatus.state === 'occupied') {
       return (
-        <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-          <Button
-            size="sm"
-            variant={hasColor ? 'secondary' : 'outline'}
-            onClick={onNavigate}
-          >
+        // biome-ignore lint/a11y/noStaticElementInteractions: stops card click propagation
+        <div
+          className="mt-3"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          <Button size="sm" variant={hasColor ? 'secondary' : 'outline'} onClick={onNavigate}>
             {t('spaces:bookLater')} →
           </Button>
         </div>
@@ -104,14 +112,16 @@ export function SpaceCard({ space, onQuickBook, onNavigate }: SpaceCardProps) {
   }
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: card navigation via click
     <div
       className={`rounded-xl border p-5 cursor-pointer transition-all duration-150 ${
-        hasColor
-          ? 'border-transparent hover:brightness-110'
-          : 'hover:bg-accent/40'
+        hasColor ? 'border-transparent hover:brightness-110' : 'hover:bg-accent/40'
       }`}
       style={space.color ? { backgroundColor: space.color } : undefined}
       onClick={handleCardClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') handleCardClick(e as unknown as React.MouseEvent)
+      }}
     >
       <p className={`font-semibold text-base ${hasColor ? 'text-white' : ''}`}>
         {space.displayName}

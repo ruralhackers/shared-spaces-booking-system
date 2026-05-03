@@ -99,9 +99,7 @@ export function QuickBookSheet({
           <Button variant="outline" onClick={handleCancel}>
             {t('booking:close')}
           </Button>
-          <Button onClick={handleConfirm}>
-            {t('booking:confirmBooking')}
-          </Button>
+          <Button onClick={handleConfirm}>{t('booking:confirmBooking')}</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

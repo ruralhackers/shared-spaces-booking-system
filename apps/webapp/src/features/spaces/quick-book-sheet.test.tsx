@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
+import { afterEach, describe, expect, spyOn, test } from 'bun:test'
 import { cleanup, render, screen } from '@testing-library/react'
 import * as bookerNameStorage from './booker-name-storage'
 import { QuickBookSheet } from './quick-book-sheet'
@@ -12,13 +12,7 @@ describe('The QuickBookSheet component', () => {
   test('pre-fills name input from readStoredBookerName()', () => {
     spyOn(bookerNameStorage, 'readStoredBookerName').mockReturnValue('Alice')
 
-    render(
-      <QuickBookSheet
-        open={true}
-        onOpenChange={() => {}}
-        space={TEST_SPACE}
-      />
-    )
+    render(<QuickBookSheet open={true} onOpenChange={() => {}} space={TEST_SPACE} />)
 
     const input = screen.getByLabelText('Your name') as HTMLInputElement
     expect(input.value).toBe('Alice')
@@ -27,13 +21,7 @@ describe('The QuickBookSheet component', () => {
   test('shows empty input when no stored name', () => {
     spyOn(bookerNameStorage, 'readStoredBookerName').mockReturnValue('')
 
-    render(
-      <QuickBookSheet
-        open={true}
-        onOpenChange={() => {}}
-        space={TEST_SPACE}
-      />
-    )
+    render(<QuickBookSheet open={true} onOpenChange={() => {}} space={TEST_SPACE} />)
 
     const input = screen.getByLabelText('Your name') as HTMLInputElement
     expect(input.value).toBe('')
@@ -66,13 +54,7 @@ describe('The QuickBookSheet component', () => {
     const fixedNow = new Date('2026-05-03T17:37:00.000Z') // 14:37 Buenos Aires
     spyOn(globalThis.Date, 'now').mockReturnValue(fixedNow.getTime())
 
-    render(
-      <QuickBookSheet
-        open={true}
-        onOpenChange={() => {}}
-        space={TEST_SPACE}
-      />
-    )
+    render(<QuickBookSheet open={true} onOpenChange={() => {}} space={TEST_SPACE} />)
 
     const subtitle = screen.getByTestId('sheet-subtitle')
     expect(subtitle.textContent).toContain('14:37')
@@ -82,13 +64,7 @@ describe('The QuickBookSheet component', () => {
   test('renders title "Confirm booking"', () => {
     spyOn(bookerNameStorage, 'readStoredBookerName').mockReturnValue('')
 
-    render(
-      <QuickBookSheet
-        open={true}
-        onOpenChange={() => {}}
-        space={TEST_SPACE}
-      />
-    )
+    render(<QuickBookSheet open={true} onOpenChange={() => {}} space={TEST_SPACE} />)
 
     expect(screen.getByRole('heading', { name: 'Confirm booking' })).toBeDefined()
   })
@@ -96,13 +72,7 @@ describe('The QuickBookSheet component', () => {
   test('renders confirm button', () => {
     spyOn(bookerNameStorage, 'readStoredBookerName').mockReturnValue('')
 
-    render(
-      <QuickBookSheet
-        open={true}
-        onOpenChange={() => {}}
-        space={TEST_SPACE}
-      />
-    )
+    render(<QuickBookSheet open={true} onOpenChange={() => {}} space={TEST_SPACE} />)
 
     expect(screen.getByRole('button', { name: 'Confirm booking' })).toBeDefined()
   })

@@ -268,13 +268,34 @@ describe('The Space entity', () => {
       const spaceTwoWindows = Space.fromDto({
         ...validDto,
         openHours: {
-          mon: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
-          tue: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
-          wed: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
-          thu: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
-          fri: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
-          sat: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
-          sun: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }]
+          mon: [
+            { start: '09:00', end: '12:00' },
+            { start: '14:00', end: '18:00' }
+          ],
+          tue: [
+            { start: '09:00', end: '12:00' },
+            { start: '14:00', end: '18:00' }
+          ],
+          wed: [
+            { start: '09:00', end: '12:00' },
+            { start: '14:00', end: '18:00' }
+          ],
+          thu: [
+            { start: '09:00', end: '12:00' },
+            { start: '14:00', end: '18:00' }
+          ],
+          fri: [
+            { start: '09:00', end: '12:00' },
+            { start: '14:00', end: '18:00' }
+          ],
+          sat: [
+            { start: '09:00', end: '12:00' },
+            { start: '14:00', end: '18:00' }
+          ],
+          sun: [
+            { start: '09:00', end: '12:00' },
+            { start: '14:00', end: '18:00' }
+          ]
         }
       })
       // 13:00 Buenos Aires = 16:00 UTC (between morning and afternoon windows)

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { SpaceDto } from '@dfs/spaces/application/dtos'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 
 // Mock tRPC
 const mockUseQuery = mock(() => ({ data: undefined, isLoading: false, error: null }))
@@ -60,7 +60,11 @@ describe('The HomePage', () => {
   // Task 9.1 RED: renders 3 space cards
   test('renders a SpaceCard for each space', () => {
     mockUseQuery.mockReturnValue({
-      data: [makeSpace(), makeSpace({ id: 'id2', slug: 'call-room', displayName: 'Call Room' }), makeSpace({ id: 'id3', slug: 'focus', displayName: 'Focus Room' })],
+      data: [
+        makeSpace(),
+        makeSpace({ id: 'id2', slug: 'call-room', displayName: 'Call Room' }),
+        makeSpace({ id: 'id3', slug: 'focus', displayName: 'Focus Room' })
+      ],
       isLoading: false,
       error: null
     })

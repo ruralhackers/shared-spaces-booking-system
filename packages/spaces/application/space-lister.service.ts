@@ -1,7 +1,7 @@
 import type { Clock } from '@dfs/common'
 import type { Booking } from '../domain/booking.entity'
-import type { Space } from '../domain/space.entity'
 import type { BookingRepository } from '../domain/booking.repository'
+import type { Space } from '../domain/space.entity'
 import type { SpaceRepository } from '../domain/space.repository'
 import type { SpaceDto } from './dtos'
 

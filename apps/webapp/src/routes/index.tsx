@@ -1,11 +1,11 @@
+import type { SpaceDto } from '@dfs/spaces/application/dtos'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import type { SpaceDto } from '@dfs/spaces/application/dtos'
+import { writeStoredBookerName } from '@/features/spaces/booker-name-storage'
 import { QuickBookSheet } from '@/features/spaces/quick-book-sheet'
 import { SpaceCard } from '@/features/spaces/space-card'
-import { writeStoredBookerName } from '@/features/spaces/booker-name-storage'
 import { api } from '@/trpc/react'
 
 export const Route = createFileRoute('/')({
@@ -14,10 +14,7 @@ export const Route = createFileRoute('/')({
 
 function SpaceCardSkeleton() {
   return (
-    <div
-      className="rounded-xl border bg-card p-6 animate-pulse"
-      data-testid="space-card-skeleton"
-    >
+    <div className="rounded-xl border bg-card p-6 animate-pulse" data-testid="space-card-skeleton">
       <div className="h-4 w-28 rounded bg-muted mb-3" />
       <div className="h-3 w-44 rounded bg-muted" />
     </div>
@@ -83,9 +80,7 @@ export function HomePage() {
             key={space.id}
             space={space}
             onQuickBook={(duration) => handleQuickBook(space, duration)}
-            onNavigate={() =>
-              navigate({ to: '/spaces/$slug', params: { slug: space.slug } })
-            }
+            onNavigate={() => navigate({ to: '/spaces/$slug', params: { slug: space.slug } })}
           />
         ))}
 
@@ -100,7 +95,9 @@ export function HomePage() {
       {sheetState && (
         <QuickBookSheet
           open={!!sheetState}
-          onOpenChange={(open) => { if (!open) setSheetState(null) }}
+          onOpenChange={(open) => {
+            if (!open) setSheetState(null)
+          }}
           space={sheetState.space}
           defaultStart={new Date()}
           defaultEnd={new Date(Date.now() + sheetState.duration * 60_000)}

@@ -1,41 +1,13 @@
 import { Id, type TimeRange, ValidationError } from '@dfs/common'
 import { toZonedTime } from 'date-fns-tz'
 import type { Booking } from './booking.entity'
-import { type DayKey, type OpenHours, openHoursContains, validateOpenHours } from './open-hours'
-
-const DAY_KEYS: DayKey[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
-
-function getUtcOffsetMs(date: Date, tz: string): number {
-  const zoned = toZonedTime(date, tz)
-  const utcMs = date.getTime()
-  const zonedMs = Date.UTC(
-    zoned.getFullYear(),
-    zoned.getMonth(),
-    zoned.getDate(),
-    zoned.getHours(),
-    zoned.getMinutes(),
-    zoned.getSeconds(),
-    zoned.getMilliseconds()
-  )
-  return utcMs - zonedMs
-}
-
-function parseHhmmForDate(hhmm: string, baseDate: Date, tz: string): Date {
-  const [hStr, mStr] = hhmm.split(':')
-  const h = Number(hStr)
-  const m = Number(mStr)
-  const zoned = toZonedTime(baseDate, tz)
-  const year = zoned.getFullYear()
-  const month = zoned.getMonth()
-  const day = zoned.getDate()
-  if (h === 24) {
-    return new Date(Date.UTC(year, month, day + 1, 0, 0, 0) + getUtcOffsetMs(baseDate, tz))
-  }
-  const localMs = Date.UTC(year, month, day, h, m, 0)
-  return new Date(localMs + getUtcOffsetMs(baseDate, tz))
-}
-
-
+import {
+  DAY_KEYS,
+  type OpenHours,
+  openHoursContains,
+  parseHhmmForDate,
+  validateOpenHours
+} from './open-hours'
 export interface SpaceDto {
   id: string
   slug: string
@@ -158,7 +130,9 @@ export class Space {
         const dto = b.toDto()
         return dto.status === 'active' && new Date(dto.startsAt).getTime() > nowMs
       })
-      .sort((a, b) => new Date(a.toDto().startsAt).getTime() - new Date(b.toDto().startsAt).getTime())[0]
+      .sort(
+        (a, b) => new Date(a.toDto().startsAt).getTime() - new Date(b.toDto().startsAt).getTime()
+      )[0]
 
     if (!nextBooking) return closeTime
 

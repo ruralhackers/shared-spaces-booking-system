@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { SpaceDto } from '@dfs/spaces/application/dtos'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { SpaceCard } from './space-card'
 
 function makeSpace(overrides: Partial<SpaceDto['currentStatus']> = {}): SpaceDto {

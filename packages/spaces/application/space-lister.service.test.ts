@@ -109,7 +109,7 @@ describe('The SpaceLister service', () => {
         seriesId: null,
         bookerName: 'Alice',
         startsAt: '2026-05-03T13:00:00.000Z', // 10:00 BA
-        endsAt: '2026-05-03T14:00:00.000Z',   // 11:00 BA
+        endsAt: '2026-05-03T14:00:00.000Z', // 11:00 BA
         status: 'active',
         createdAt: '2026-05-03T13:00:00.000Z',
         cancelledAt: null,
@@ -164,7 +164,7 @@ describe('The SpaceLister service', () => {
         seriesId: null,
         bookerName: 'Alice',
         startsAt: '2026-05-03T13:00:00.000Z', // 10:00 BA
-        endsAt: '2026-05-03T14:00:00.000Z',   // 11:00 BA
+        endsAt: '2026-05-03T14:00:00.000Z', // 11:00 BA
         status: 'active',
         createdAt: '2026-05-03T13:00:00.000Z',
         cancelledAt: null,

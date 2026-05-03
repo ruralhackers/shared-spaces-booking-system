@@ -11,9 +11,9 @@ export type DayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
 
 export type OpenHours = Record<DayKey, OpenHoursWindow[]>
 
-const DAY_KEYS: DayKey[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+export const DAY_KEYS: DayKey[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
 
-function parseHhmm(hhmm: string, baseDate: Date, tz: string): Date {
+export function parseHhmmForDate(hhmm: string, baseDate: Date, tz: string): Date {
   const [hStr, mStr] = hhmm.split(':')
   const h = Number(hStr)
   const m = Number(mStr)
@@ -32,7 +32,7 @@ function parseHhmm(hhmm: string, baseDate: Date, tz: string): Date {
   return new Date(localMs + getUtcOffsetMs(baseDate, tz))
 }
 
-function getUtcOffsetMs(date: Date, tz: string): number {
+export function getUtcOffsetMs(date: Date, tz: string): number {
   const zoned = toZonedTime(date, tz)
   const utcMs = date.getTime()
   const zonedMs = Date.UTC(
@@ -57,8 +57,8 @@ export function openHoursContains(openHours: OpenHours, range: TimeRange, tz: st
   if (!windows || windows.length === 0) return false
 
   return windows.some((window) => {
-    const windowStart = parseHhmm(window.start, start, tz)
-    const windowEnd = parseHhmm(window.end, start, tz)
+    const windowStart = parseHhmmForDate(window.start, start, tz)
+    const windowEnd = parseHhmmForDate(window.end, start, tz)
     return (
       range.getStart().getTime() >= windowStart.getTime() &&
       range.getEnd().getTime() <= windowEnd.getTime()
