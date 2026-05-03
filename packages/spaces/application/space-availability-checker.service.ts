@@ -24,10 +24,9 @@ export class SpaceAvailabilityChecker {
         const spaceDto = space.toDto()
 
         if (!space.isOpenAt(range, input.tz)) {
-          return SpaceAvailability.occupied(
+          return SpaceAvailability.closed(
             spaceDto.slug,
             spaceDto.displayName,
-            undefined,
             spaceDto.color
           ).toDto()
         }

@@ -27,6 +27,18 @@ export const spacesRouter = t.router({
         endsAt: z.string()
       })
     )
+    .output(
+      z.array(
+        z.object({
+          spaceSlug: z.string(),
+          spaceName: z.string(),
+          status: z.enum(['available', 'occupied']),
+          state: z.enum(['free', 'occupied', 'closed']),
+          occupiedBy: z.string().optional(),
+          color: z.string().nullable().optional()
+        })
+      )
+    )
     .query(({ ctx, input }) =>
       ctx.spacesServices.availabilityChecker.run({
         startsAt: new Date(input.startsAt),

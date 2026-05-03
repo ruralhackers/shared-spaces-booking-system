@@ -50,7 +50,7 @@ describe('The SpaceAvailabilityChecker', () => {
     expect(result[0]?.spaceSlug).toBe('chill-house')
   })
 
-  test('returns occupied when space is closed during requested time', async () => {
+  test('returns state: closed for window outside open hours', async () => {
     const spaceRepo = new InMemorySpaceRepository()
     const bookingRepo = new InMemoryBookingRepository()
     await spaceRepo.save(createSpace('Chill House'))
@@ -64,8 +64,56 @@ describe('The SpaceAvailabilityChecker', () => {
     })
 
     expect(result).toHaveLength(1)
-    expect(result[0]?.status).toBe('occupied')
+    expect(result[0]?.state).toBe('closed')
     expect(result[0]?.occupiedBy).toBeUndefined()
+  })
+
+  test('returns state: free for available space', async () => {
+    const spaceRepo = new InMemorySpaceRepository()
+    const bookingRepo = new InMemoryBookingRepository()
+    await spaceRepo.save(createSpace('Chill House'))
+
+    const checker = new SpaceAvailabilityChecker(spaceRepo, bookingRepo)
+
+    const result = await checker.run({
+      startsAt: new Date('2026-05-05T10:00:00-03:00'), // Tuesday (open)
+      endsAt: new Date('2026-05-05T11:00:00-03:00'),
+      tz: TZ
+    })
+
+    expect(result).toHaveLength(1)
+    expect(result[0]?.state).toBe('free')
+  })
+
+  test('returns state: occupied for booked space', async () => {
+    const spaceRepo = new InMemorySpaceRepository()
+    const bookingRepo = new InMemoryBookingRepository()
+    const space = createSpace('Chill House')
+    await spaceRepo.save(space)
+
+    const booking = Booking.create({
+      space,
+      range: TimeRange.create({
+        start: new Date('2026-05-05T10:00:00-03:00'),
+        end: new Date('2026-05-05T11:00:00-03:00')
+      }),
+      bookerName: BookerName.create('Ana'),
+      existing: [],
+      clock,
+      tz: TZ
+    })
+    await bookingRepo.save(booking)
+
+    const checker = new SpaceAvailabilityChecker(spaceRepo, bookingRepo)
+
+    const result = await checker.run({
+      startsAt: new Date('2026-05-05T10:30:00-03:00'),
+      endsAt: new Date('2026-05-05T11:30:00-03:00'),
+      tz: TZ
+    })
+
+    expect(result).toHaveLength(1)
+    expect(result[0]?.state).toBe('occupied')
   })
 
   test('returns occupied with booker name when overlapping booking exists', async () => {
