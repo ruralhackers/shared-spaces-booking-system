@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { TimeRange, ValidationError } from '@dfs/common'
+import { Booking } from './booking.entity'
 import { Space } from './space.entity'
 
 const TZ = 'America/Argentina/Buenos_Aires'
@@ -123,6 +124,166 @@ describe('The Space entity', () => {
       const space = Space.fromDto(validDto)
 
       expect(space.toDto()).toEqual(validDto)
+    })
+  })
+
+  describe('computeFreeUntil()', () => {
+    const TZ_BUENOS_AIRES = 'America/Argentina/Buenos_Aires'
+
+    const spaceOpen9to18 = Space.fromDto({
+      ...validDto,
+      openHours: {
+        mon: [{ start: '09:00', end: '18:00' }],
+        tue: [{ start: '09:00', end: '18:00' }],
+        wed: [{ start: '09:00', end: '18:00' }],
+        thu: [{ start: '09:00', end: '18:00' }],
+        fri: [{ start: '09:00', end: '18:00' }],
+        sat: [{ start: '09:00', end: '18:00' }],
+        sun: [{ start: '09:00', end: '18:00' }]
+      }
+    })
+
+    // Task 1.1 RED: no bookings today
+    test('returns close time when no bookings today', () => {
+      // 2026-05-03 is a Sunday, now = 10:00 in Buenos Aires (UTC-3) = 13:00 UTC
+      const now = new Date('2026-05-03T13:00:00Z')
+
+      const result = spaceOpen9to18.computeFreeUntil([], now, TZ_BUENOS_AIRES)
+
+      // 18:00 Buenos Aires = 21:00 UTC
+      expect(result?.toISOString()).toBe('2026-05-03T21:00:00.000Z')
+    })
+
+    // Task 1.4 RED: next booking exists
+    test('returns next booking start when booking exists after now', () => {
+      const now = new Date('2026-05-03T13:00:00Z') // 10:00 Buenos Aires
+      // Booking at 14:00 Buenos Aires = 17:00 UTC
+      const booking = Booking.fromDto({
+        id: 'clh0000000000000000000001',
+        spaceId: validDto.id,
+        seriesId: null,
+        bookerName: 'Alice',
+        startsAt: '2026-05-03T17:00:00.000Z',
+        endsAt: '2026-05-03T18:00:00.000Z',
+        status: 'active',
+        createdAt: '2026-05-03T13:00:00.000Z',
+        cancelledAt: null,
+        cancelledBy: null
+      })
+
+      const result = spaceOpen9to18.computeFreeUntil([booking], now, TZ_BUENOS_AIRES)
+
+      expect(result?.toISOString()).toBe('2026-05-03T17:00:00.000Z')
+    })
+
+    test('returns null when space is closed now', () => {
+      // Space opens at 14:00, now = 10:00
+      const spaceOpen14to18 = Space.fromDto({
+        ...validDto,
+        openHours: {
+          mon: [{ start: '14:00', end: '18:00' }],
+          tue: [{ start: '14:00', end: '18:00' }],
+          wed: [{ start: '14:00', end: '18:00' }],
+          thu: [{ start: '14:00', end: '18:00' }],
+          fri: [{ start: '14:00', end: '18:00' }],
+          sat: [{ start: '14:00', end: '18:00' }],
+          sun: [{ start: '14:00', end: '18:00' }]
+        }
+      })
+      const now = new Date('2026-05-03T13:00:00Z') // 10:00 Buenos Aires
+
+      const result = spaceOpen14to18.computeFreeUntil([], now, TZ_BUENOS_AIRES)
+
+      expect(result).toBeNull()
+    })
+  })
+
+  describe('computeNextOpenAt()', () => {
+    const TZ_BUENOS_AIRES = 'America/Argentina/Buenos_Aires'
+
+    // Task 1.7 RED: closed now but opens later today
+    test('returns next open time when closed now but opens later today', () => {
+      const spaceOpen14to18 = Space.fromDto({
+        ...validDto,
+        openHours: {
+          mon: [{ start: '14:00', end: '18:00' }],
+          tue: [{ start: '14:00', end: '18:00' }],
+          wed: [{ start: '14:00', end: '18:00' }],
+          thu: [{ start: '14:00', end: '18:00' }],
+          fri: [{ start: '14:00', end: '18:00' }],
+          sat: [{ start: '14:00', end: '18:00' }],
+          sun: [{ start: '14:00', end: '18:00' }]
+        }
+      })
+      const now = new Date('2026-05-03T13:00:00Z') // 10:00 Buenos Aires
+
+      const result = spaceOpen14to18.computeNextOpenAt(now, TZ_BUENOS_AIRES)
+
+      // 14:00 Buenos Aires = 17:00 UTC
+      expect(result?.toISOString()).toBe('2026-05-03T17:00:00.000Z')
+    })
+
+    // Task 1.10 RED: closed all day
+    test('returns null when space has no open hours today', () => {
+      const spaceClosed = Space.fromDto({
+        ...validDto,
+        openHours: {
+          mon: [],
+          tue: [],
+          wed: [],
+          thu: [],
+          fri: [],
+          sat: [],
+          sun: []
+        }
+      })
+      const now = new Date('2026-05-03T13:00:00Z') // 10:00 Buenos Aires
+
+      const result = spaceClosed.computeNextOpenAt(now, TZ_BUENOS_AIRES)
+
+      expect(result).toBeNull()
+    })
+
+    test('returns null when space is already open', () => {
+      const spaceOpen9to18 = Space.fromDto({
+        ...validDto,
+        openHours: {
+          mon: [{ start: '09:00', end: '18:00' }],
+          tue: [{ start: '09:00', end: '18:00' }],
+          wed: [{ start: '09:00', end: '18:00' }],
+          thu: [{ start: '09:00', end: '18:00' }],
+          fri: [{ start: '09:00', end: '18:00' }],
+          sat: [{ start: '09:00', end: '18:00' }],
+          sun: [{ start: '09:00', end: '18:00' }]
+        }
+      })
+      const now = new Date('2026-05-03T13:00:00Z') // 10:00 Buenos Aires - open now
+
+      const result = spaceOpen9to18.computeNextOpenAt(now, TZ_BUENOS_AIRES)
+
+      expect(result).toBeNull()
+    })
+
+    test('returns next window start when between windows', () => {
+      const spaceTwoWindows = Space.fromDto({
+        ...validDto,
+        openHours: {
+          mon: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
+          tue: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
+          wed: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
+          thu: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
+          fri: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
+          sat: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }],
+          sun: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }]
+        }
+      })
+      // 13:00 Buenos Aires = 16:00 UTC (between morning and afternoon windows)
+      const now = new Date('2026-05-03T16:00:00Z')
+
+      const result = spaceTwoWindows.computeNextOpenAt(now, TZ_BUENOS_AIRES)
+
+      // 14:00 Buenos Aires = 17:00 UTC
+      expect(result?.toISOString()).toBe('2026-05-03T17:00:00.000Z')
     })
   })
 
