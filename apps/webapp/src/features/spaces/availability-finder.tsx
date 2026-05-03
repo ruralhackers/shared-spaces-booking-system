@@ -98,6 +98,8 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
   const [defaultStart, setDefaultStart] = useState('09:00')
   const [defaultEnd, setDefaultEnd] = useState('10:00')
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null)
+  const [submittedStart, setSubmittedStart] = useState('')
+  const [submittedEnd, setSubmittedEnd] = useState('')
   const [showSheet, setShowSheet] = useState(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [todayFellBack, setTodayFellBack] = useState(false)
@@ -145,6 +147,8 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
   }
 
   function handleSearch(start: string, end: string) {
+    setSubmittedStart(start)
+    setSubmittedEnd(end)
     setSearchParams({
       startsAt: buildIso(chosenDate, start, tz),
       endsAt: buildIso(chosenDate, end, tz)
@@ -152,7 +156,9 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
   }
 
   function handleReserve(space: { id: string; slug: string; name: string }) {
-    setSheetData({ space, date: chosenDate, start: defaultStart, end: defaultEnd })
+    const start = submittedStart || defaultStart
+    const end = submittedEnd || defaultEnd
+    setSheetData({ space, date: chosenDate, start, end })
     setShowSheet(true)
   }
 
@@ -225,8 +231,8 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
           onReserve={handleReserve}
           onViewDay={handleViewDay}
           chosenDate={chosenDate}
-          chosenStart={defaultStart}
-          chosenEnd={defaultEnd}
+          chosenStart={submittedStart || defaultStart}
+          chosenEnd={submittedEnd || defaultEnd}
         />
       )}
 
