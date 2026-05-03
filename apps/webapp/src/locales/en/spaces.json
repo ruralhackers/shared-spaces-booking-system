@@ -25,5 +25,14 @@
   "available": "Available",
   "occupiedBy": "({{name}})",
   "noSpacesAvailable": "No spaces available for the selected time.",
-  "availableSpaces": "Available spaces"
+  "availableSpaces": "Available spaces",
+  "freeUntil": "Free · until {{time}}",
+  "freeAllDay": "Free all day",
+  "occupiedUntil": "{{name}} · until {{time}} ({{minutes}}min remaining)",
+  "closedOpensAt": "Closed · opens {{time}}",
+  "closedToday": "Closed today",
+  "bookLater": "Book later",
+  "quickBook30min": "30min",
+  "quickBook1h": "1h",
+  "quickBook2h": "2h"
 }

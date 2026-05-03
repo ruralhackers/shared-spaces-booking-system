@@ -40,5 +40,8 @@
   "firstDate": "First Date",
   "endDate": "End Date",
   "cancelSeries": "Cancel Series",
-  "recurringBooking": "Recurring booking"
+  "recurringBooking": "Recurring booking",
+  "confirmBooking": "Confirm booking",
+  "yourName": "Your name"
 }
+

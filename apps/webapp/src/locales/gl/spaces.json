@@ -25,5 +25,14 @@
   "available": "Dispoñible",
   "occupiedBy": "({{name}})",
   "noSpacesAvailable": "Non hai salas dispoñibles para o horario seleccionado.",
-  "availableSpaces": "Salas dispoñibles"
+  "availableSpaces": "Salas dispoñibles",
+  "freeUntil": "Libre · ata as {{time}}",
+  "freeAllDay": "Libre todo o día",
+  "occupiedUntil": "{{name}} · ata as {{time}} ({{minutes}}min restantes)",
+  "closedOpensAt": "Pechado · abre {{time}}",
+  "closedToday": "Pechado hoxe",
+  "bookLater": "Reservar despois",
+  "quickBook30min": "30min",
+  "quickBook1h": "1h",
+  "quickBook2h": "2h"
 }

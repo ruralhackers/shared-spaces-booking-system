@@ -40,5 +40,8 @@
   "bookerName": "Reservante",
   "firstDate": "Primera Fecha",
   "endDate": "Fecha Final",
-  "cancelSeries": "Cancelar Serie"
+  "cancelSeries": "Cancelar Serie",
+  "confirmBooking": "Confirmar reserva",
+  "yourName": "Tu nombre"
 }
+
