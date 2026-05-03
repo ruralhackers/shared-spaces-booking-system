@@ -127,12 +127,7 @@ describe('The DayTimeline component', () => {
   // 2.13 RED: calls onBookingTap when booking block is clicked
   test('calls onBookingTap with bookingId when booking block is clicked', async () => {
     const onBookingTap = mock(() => {})
-    const booking = makeBooking(
-      '123',
-      'Marta',
-      '2026-05-03T13:00:00Z',
-      '2026-05-03T14:00:00Z'
-    )
+    const booking = makeBooking('123', 'Marta', '2026-05-03T13:00:00Z', '2026-05-03T14:00:00Z')
 
     render(
       <DayTimeline

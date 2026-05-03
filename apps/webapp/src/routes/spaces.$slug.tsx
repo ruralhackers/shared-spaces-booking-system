@@ -1,27 +1,47 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { addDays, format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import type { BookingFormData } from '@/features/spaces/booking-form'
-import { BookingForm } from '@/features/spaces/booking-form'
-import { BookingListItem } from '@/features/spaces/booking-list-item'
+import type { AdvancedBookingFormData } from '@/features/spaces/advanced-booking-sheet'
+import { AdvancedBookingSheet } from '@/features/spaces/advanced-booking-sheet'
+import { readStoredBookerName } from '@/features/spaces/booker-name-storage'
+import { CancelBookingDialog } from '@/features/spaces/cancel-booking-dialog'
+import { DayTimeline } from '@/features/spaces/day-timeline'
+import { QuickBookSheet } from '@/features/spaces/quick-book-sheet'
 import { RecurringConfirmationDialog } from '@/features/spaces/recurring-confirmation-dialog'
 import { todayInBookingTz } from '@/lib/format-time'
 import { api } from '@/trpc/react'
 
 export const Route = createFileRoute('/spaces/$slug')({
+  validateSearch: z.object({ date: z.string().optional() }),
   component: SpacePage
 })
+
+function parseDate(raw: string | undefined): string {
+  if (!raw) return todayInBookingTz()
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    const d = new Date(raw)
+    if (!Number.isNaN(d.getTime())) return raw
+  }
+  return todayInBookingTz()
+}
 
 function SpacePage() {
   const { t } = useTranslation(['common', 'booking'])
   const { slug } = Route.useParams()
-  const [date, setDate] = useState(todayInBookingTz)
+  const { date: dateParam } = Route.useSearch()
+  const navigate = Route.useNavigate()
+
+  const date = parseDate(dateParam)
+  const today = todayInBookingTz()
+  const isToday = date === today
+
   const utils = api.useUtils()
 
   const { data, isLoading, error } = api.spaces.dayView.useQuery({ slug, date })
@@ -32,9 +52,27 @@ function SpacePage() {
     skipped: Array<{ date: string; reason: string }>
   } | null>(null)
 
+  // Quick book sheet state
+  const [quickBookOpen, setQuickBookOpen] = useState(false)
+  const [quickBookDefaults, setQuickBookDefaults] = useState<{
+    start: string
+    end: string
+  }>({ start: '', end: '' })
+
+  // Advanced booking sheet state
+  const [advancedOpen, setAdvancedOpen] = useState(false)
+
+  // Cancel dialog state
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+  const [cancelBookingId, setCancelBookingId] = useState<string | null>(null)
+  const [cancelBookingSeriesId, setCancelBookingSeriesId] = useState<string | null>(null)
+  const [cancelBookingName, setCancelBookingName] = useState('')
+  const [cancelNameInput, setCancelNameInput] = useState('')
+
   const bookMutation = api.spaces.book.useMutation({
     onSuccess: () => {
       utils.spaces.dayView.invalidate({ slug, date })
+      setQuickBookOpen(false)
       toast.success(t('booking:bookingConfirmed'))
     },
     onError: (e) => toast.error(e.message)
@@ -43,6 +81,7 @@ function SpacePage() {
   const bookSeriesMutation = api.spaces.bookingSeries.create.useMutation({
     onSuccess: (result) => {
       utils.spaces.dayView.invalidate({ slug, date })
+      setAdvancedOpen(false)
       if (result.skipped.length > 0) {
         setRecurringResult(result)
       } else {
@@ -55,6 +94,10 @@ function SpacePage() {
   const cancelMutation = api.spaces.cancel.useMutation({
     onSuccess: () => {
       utils.spaces.dayView.invalidate({ slug, date })
+      setCancelDialogOpen(false)
+      setCancelBookingId(null)
+      setCancelBookingSeriesId(null)
+      setCancelNameInput('')
       toast.success(t('booking:bookingCancelled'))
     },
     onError: (e) => toast.error(e.message)
@@ -63,51 +106,108 @@ function SpacePage() {
   const cancelSeriesMutation = api.spaces.bookingSeries.cancelByBooker.useMutation({
     onSuccess: () => {
       utils.spaces.dayView.invalidate({ slug, date })
+      setCancelDialogOpen(false)
+      setCancelBookingId(null)
+      setCancelBookingSeriesId(null)
+      setCancelNameInput('')
       toast.success(t('booking:bookingCancelled'))
     },
     onError: (e) => toast.error(e.message)
   })
 
-  const [cancelName, setCancelName] = useState<Record<string, string>>({})
-  const bookingFormRef = useRef<HTMLElement>(null)
-
-  function shiftDay(delta: number) {
-    setDate((d) => format(addDays(parseISO(d), delta), 'yyyy-MM-dd'))
+  function setDate(newDate: string) {
+    navigate({ search: (prev) => ({ ...prev, date: newDate }) })
   }
 
-  function handleCancel(id: string, seriesId: string | null, scope?: 'this' | 'thisAndFuture') {
-    const name = cancelName[id] ?? ''
-    if (seriesId && scope) {
-      cancelSeriesMutation.mutate({
-        seriesId,
-        scope,
-        occurrenceId: id,
-        bookerName: name
-      })
-    } else {
-      cancelMutation.mutate({ id, bookerName: name })
+  function shiftDay(delta: number) {
+    setDate(format(addDays(parseISO(date), delta), 'yyyy-MM-dd'))
+  }
+
+  function handleSlotTap(hour: number) {
+    const start = `${String(hour).padStart(2, '0')}:00`
+    const bookings = data?.bookings ?? []
+    const openHours = data?.openHoursForDay ?? []
+
+    // Find next booking start time
+    const startMs = new Date(`${date}T${start}:00`).getTime()
+    const nextBookingStart = bookings
+      .map((b) => new Date(b.startsAt).getTime())
+      .filter((t) => t > startMs)
+      .sort((a, b) => a - b)[0]
+
+    // Find space close time for this slot
+    let closeTimeMs: number | null = null
+    for (const w of openHours) {
+      const wStartFrac = Number(w.start.split(':')[0]) + Number(w.start.split(':')[1]) / 60
+      const wEndFrac = Number(w.end.split(':')[0]) + Number(w.end.split(':')[1]) / 60
+      if (hour >= wStartFrac && hour < wEndFrac) {
+        closeTimeMs = new Date(`${date}T${w.end}:00`).getTime()
+        break
+      }
+    }
+
+    const defaultEndMs = startMs + 60 * 60 * 1000
+    let endMs = defaultEndMs
+    if (nextBookingStart && nextBookingStart < endMs) endMs = nextBookingStart
+    if (closeTimeMs && closeTimeMs < endMs) endMs = closeTimeMs
+
+    const endDate = new Date(endMs)
+    const end = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`
+
+    setQuickBookDefaults({ start, end })
+    setQuickBookOpen(true)
+  }
+
+  function handleBookingTap(bookingId: string, bookerName: string) {
+    const stored = readStoredBookerName()
+    if (stored && stored === bookerName) {
+      const booking = data?.bookings.find((b) => b.id === bookingId)
+      setCancelBookingId(bookingId)
+      setCancelBookingSeriesId(booking?.seriesId ?? null)
+      setCancelBookingName(bookerName)
+      setCancelNameInput('')
+      setCancelDialogOpen(true)
     }
   }
 
-  function handleBookingSubmit(data: BookingFormData) {
-    if (data.type === 'single') {
+  function handleCancelConfirm(scope?: 'this' | 'thisAndFuture') {
+    if (!cancelBookingId) return
+    if (cancelBookingSeriesId && scope) {
+      cancelSeriesMutation.mutate({
+        seriesId: cancelBookingSeriesId,
+        scope,
+        occurrenceId: cancelBookingId,
+        bookerName: cancelNameInput
+      })
+    } else {
+      cancelMutation.mutate({ id: cancelBookingId, bookerName: cancelNameInput })
+    }
+  }
+
+  function handleAdvancedSubmit(formData: AdvancedBookingFormData) {
+    if (formData.type === 'single') {
       bookMutation.mutate({
         slug,
-        bookerName: data.bookerName,
-        startsAt: data.startsAt,
-        endsAt: data.endsAt
+        bookerName: formData.bookerName,
+        startsAt: formData.startsAt,
+        endsAt: formData.endsAt
       })
     } else {
       bookSeriesMutation.mutate({
         slug,
-        bookerName: data.bookerName,
-        startsAt: data.startsAt,
-        endsAt: data.endsAt,
-        frequency: data.frequency,
-        end: data.end
+        bookerName: formData.bookerName,
+        startsAt: formData.startsAt,
+        endsAt: formData.endsAt,
+        frequency: formData.frequency,
+        end: formData.end
       })
     }
   }
+
+  const closedDayWeekday =
+    data?.openHoursForDay?.length === 0
+      ? new Date(`${date}T12:00:00Z`).toLocaleDateString('en', { weekday: 'long' })
+      : null
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
@@ -120,16 +220,6 @@ function SpacePage() {
           <ChevronLeft className="h-3.5 w-3.5" />
           {t('allSpaces')}
         </Link>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={bookMutation.isPending}
-          onClick={() =>
-            bookingFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          }
-        >
-          {t('booking:book')}
-        </Button>
       </div>
 
       {isLoading && !data && (
@@ -156,14 +246,16 @@ function SpacePage() {
                 />
               )}
               <h1 className="text-xl font-semibold">{data.space.displayName}</h1>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs text-muted-foreground"
-                onClick={() => setDate(todayInBookingTz())}
-              >
-                {t('today')}
-              </Button>
+              {!isToday && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-muted-foreground"
+                  onClick={() => setDate(today)}
+                >
+                  {t('today')}
+                </Button>
+              )}
             </div>
             <p className="text-sm text-muted-foreground mt-0.5">{data.space.description}</p>
           </div>
@@ -196,46 +288,76 @@ function SpacePage() {
 
           <Separator className="mb-6" />
 
-          {/* Bookings list */}
-          <section className="mb-10">
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
-              {t('bookings')}
-            </h2>
+          {/* Timeline or closed state */}
+          {closedDayWeekday ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">
+              {t('booking:closedOn', { weekday: closedDayWeekday })}
+            </p>
+          ) : (
+            <div className="mb-6 overflow-y-auto max-h-[600px]">
+              <DayTimeline
+                bookings={data.bookings}
+                openHours={data.openHoursForDay}
+                date={date}
+                onSlotTap={handleSlotTap}
+                onBookingTap={handleBookingTap}
+                spaceColor={data.space.color ?? undefined}
+              />
+            </div>
+          )}
 
-            {data.bookings.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4">{t('booking:noBookings')}</p>
-            ) : (
-              <ul className="flex flex-col divide-y">
-                {data.bookings.map((b) => (
-                  <BookingListItem
-                    key={b.id}
-                    booking={b}
-                    cancelName={cancelName[b.id] ?? ''}
-                    onCancelNameChange={(value) =>
-                      setCancelName((prev) => ({ ...prev, [b.id]: value }))
-                    }
-                    onCancel={(scope) => handleCancel(b.id, b.seriesId, scope)}
-                    isPending={cancelMutation.isPending || cancelSeriesMutation.isPending}
-                  />
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <Separator className="mb-6" />
-
-          {/* Booking form */}
-          <section ref={bookingFormRef}>
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">
-              {t('booking:newBooking')}
-            </h2>
-            <BookingForm
-              date={date}
-              onSubmit={handleBookingSubmit}
-              isPending={bookMutation.isPending || bookSeriesMutation.isPending}
-            />
-          </section>
+          {/* Advanced booking button */}
+          <div className="mt-6 flex justify-center">
+            <Button variant="outline" onClick={() => setAdvancedOpen(true)}>
+              {t('booking:advancedBooking')}
+            </Button>
+          </div>
         </>
+      )}
+
+      {/* Quick book sheet */}
+      {data && (
+        <QuickBookSheet
+          open={quickBookOpen}
+          onOpenChange={setQuickBookOpen}
+          space={{ id: data.space.id, slug, name: data.space.displayName }}
+          defaultStart={
+            quickBookDefaults.start ? `${date}T${quickBookDefaults.start}:00` : undefined
+          }
+          defaultEnd={quickBookDefaults.end ? `${date}T${quickBookDefaults.end}:00` : undefined}
+          onConfirm={(name, startsAt, endsAt) => {
+            bookMutation.mutate({
+              slug,
+              bookerName: name,
+              startsAt: startsAt.toISOString(),
+              endsAt: endsAt.toISOString()
+            })
+          }}
+        />
+      )}
+
+      {/* Advanced booking sheet */}
+      {data && (
+        <AdvancedBookingSheet
+          open={advancedOpen}
+          onOpenChange={setAdvancedOpen}
+          date={date}
+          spaceName={data.space.displayName}
+          onSubmit={handleAdvancedSubmit}
+          isPending={bookMutation.isPending || bookSeriesMutation.isPending}
+        />
+      )}
+
+      {/* Cancel booking dialog */}
+      {cancelDialogOpen && cancelBookingId && (
+        <CancelBookingDialog
+          bookerName={cancelBookingName}
+          nameInput={cancelNameInput}
+          onNameChange={setCancelNameInput}
+          onConfirm={handleCancelConfirm}
+          isPending={cancelMutation.isPending || cancelSeriesMutation.isPending}
+          seriesId={cancelBookingSeriesId}
+        />
       )}
 
       {recurringResult && (

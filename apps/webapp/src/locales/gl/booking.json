@@ -42,5 +42,10 @@
   "endDate": "Data Final",
   "cancelSeries": "Cancelar Serie",
   "confirmBooking": "Confirmar reserva",
-  "yourName": "O teu nome"
+  "yourName": "O teu nome",
+  "advancedBooking": "Reserva avanzada",
+  "tapToReserve": "Toca para reservar",
+  "closedOn": "Pechado os {{weekday}}",
+  "freeSlot": "Libre",
+  "openHours": "Horario"
 }

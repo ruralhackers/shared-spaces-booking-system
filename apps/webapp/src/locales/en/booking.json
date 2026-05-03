@@ -42,5 +42,10 @@
   "cancelSeries": "Cancel Series",
   "recurringBooking": "Recurring booking",
   "confirmBooking": "Confirm booking",
-  "yourName": "Your name"
+  "yourName": "Your name",
+  "advancedBooking": "Advanced booking",
+  "tapToReserve": "Tap to reserve",
+  "closedOn": "Closed on {{weekday}}s",
+  "freeSlot": "Free",
+  "openHours": "Open hours"
 }

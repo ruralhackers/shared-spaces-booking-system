@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
 import { toZonedTime } from 'date-fns-tz'
+import { useEffect, useRef, useState } from 'react'
 import { bookingTz } from '@/lib/format-time'
 import { NowIndicator } from './now-indicator'
 
@@ -80,10 +80,12 @@ function detectOverlaps(bookings: Booking[]): Map<string, number> {
   )
 
   for (let i = 0; i < sorted.length; i++) {
-    const a = sorted[i]!
+    const a = sorted[i]
+    if (!a) continue
     let col = 0
     for (let j = 0; j < i; j++) {
-      const b = sorted[j]!
+      const b = sorted[j]
+      if (!b) continue
       const aStart = new Date(a.startsAt).getTime()
       const aEnd = new Date(a.endsAt).getTime()
       const bStart = new Date(b.startsAt).getTime()
@@ -101,8 +103,9 @@ function detectOverlaps(bookings: Booking[]): Map<string, number> {
 function hasAnyOverlap(bookings: Booking[]): boolean {
   for (let i = 0; i < bookings.length; i++) {
     for (let j = i + 1; j < bookings.length; j++) {
-      const a = bookings[i]!
-      const b = bookings[j]!
+      const a = bookings[i]
+      const b = bookings[j]
+      if (!a || !b) continue
       const aStart = new Date(a.startsAt).getTime()
       const aEnd = new Date(a.endsAt).getTime()
       const bStart = new Date(b.startsAt).getTime()
@@ -151,10 +154,11 @@ export function DayTimeline({
         const open = isHourOpen(hour, openHours)
         const top = idx * HOUR_ROW_HEIGHT
         return (
-          <div
+          <button
+            type="button"
             key={hour}
             data-testid={`hour-row-${hour}`}
-            className={`absolute left-0 right-0 flex border-b border-border cursor-pointer ${open ? 'hover:bg-muted/30' : 'bg-muted/60'}`}
+            className={`absolute left-0 right-0 flex border-b border-border cursor-pointer text-left w-full ${open ? 'hover:bg-muted/30' : 'bg-muted/60'}`}
             style={{ top: `${top}px`, height: `${HOUR_ROW_HEIGHT}px` }}
             onClick={() => onSlotTap(hour)}
           >
@@ -170,7 +174,7 @@ export function DayTimeline({
                 </span>
               </div>
             )}
-          </div>
+          </button>
         )
       })}
 
@@ -188,7 +192,8 @@ export function DayTimeline({
         const rightOffset = hasOverlap ? undefined : '4px'
 
         return (
-          <div
+          <button
+            type="button"
             key={booking.id}
             data-testid={`booking-block-${booking.id}`}
             className="absolute flex items-center justify-center rounded text-white text-xs font-medium cursor-pointer z-10 overflow-hidden px-1"
@@ -206,13 +211,19 @@ export function DayTimeline({
             }}
           >
             <span className="truncate">{booking.bookerName}</span>
-          </div>
+          </button>
         )
       })}
 
       {/* Now indicator */}
       {isToday && (
-        <div ref={nowRef} className="absolute left-0 right-0 z-20" style={{ top: `${(currentTime.getHours() + currentTime.getMinutes() / 60 - timelineStartHour) * HOUR_ROW_HEIGHT}px` }}>
+        <div
+          ref={nowRef}
+          className="absolute left-0 right-0 z-20"
+          style={{
+            top: `${(currentTime.getHours() + currentTime.getMinutes() / 60 - timelineStartHour) * HOUR_ROW_HEIGHT}px`
+          }}
+        >
           <NowIndicator
             date={date}
             currentTime={currentTime}
