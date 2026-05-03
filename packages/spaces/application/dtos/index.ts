@@ -3,6 +3,14 @@ import type { SpaceDto as DomainSpaceDto } from '../../domain/space.entity'
 
 export interface SpaceDto extends DomainSpaceDto {
   isOccupiedNow: boolean
+  currentStatus: {
+    state: 'free' | 'occupied' | 'closed'
+    freeUntil?: string
+    freeWindowMinutes?: number
+    occupiedBy?: string
+    occupiedUntil?: string
+    nextOpenAt?: string | null
+  }
 }
 
 export interface BookingDto {
