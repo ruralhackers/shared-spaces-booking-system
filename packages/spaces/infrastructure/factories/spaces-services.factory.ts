@@ -50,7 +50,7 @@ export class SpacesServicesFactory {
     const spacesNotifier = new GenericNotifierAdapter(notifier)
 
     return {
-      spaceLister: new SpaceLister(spaceRepo, bookingRepo),
+      spaceLister: new SpaceLister(spaceRepo, bookingRepo, clock, tz),
       spaceDayViewer: new SpaceDayViewer(spaceRepo, bookingRepo, tz),
       availabilityChecker: new SpaceAvailabilityChecker(spaceRepo, bookingRepo),
       bookingCreator: new BookingCreator(spaceRepo, bookingRepo, spacesNotifier, clock, tz),
