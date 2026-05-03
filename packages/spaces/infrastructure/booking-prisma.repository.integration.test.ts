@@ -200,4 +200,56 @@ describe('The BookingPrismaRepository', () => {
 
     expect(overlapping).toHaveLength(0)
   })
+
+  test('findForDate returns only bookings for given date', async () => {
+    const spaceRepo = new SpacePrismaRepository(db.client)
+    const bookingRepo = new BookingPrismaRepository(db.client)
+    const space = await spaceRepo.findBySlug('chill-house')
+    if (!space) throw new Error('Space not found')
+
+    const bookingMay3a = Booking.create({
+      space,
+      range: TimeRange.create({
+        start: new Date('2026-05-03T10:00:00-03:00'),
+        end: new Date('2026-05-03T11:00:00-03:00')
+      }),
+      bookerName: BookerName.create('FindDateA'),
+      existing: [],
+      clock,
+      tz: TZ
+    })
+    const bookingMay3b = Booking.create({
+      space,
+      range: TimeRange.create({
+        start: new Date('2026-05-03T14:00:00-03:00'),
+        end: new Date('2026-05-03T15:00:00-03:00')
+      }),
+      bookerName: BookerName.create('FindDateB'),
+      existing: [bookingMay3a],
+      clock,
+      tz: TZ
+    })
+    const bookingMay4 = Booking.create({
+      space,
+      range: TimeRange.create({
+        start: new Date('2026-05-04T10:00:00-03:00'),
+        end: new Date('2026-05-04T11:00:00-03:00')
+      }),
+      bookerName: BookerName.create('FindDateC'),
+      existing: [],
+      clock,
+      tz: TZ
+    })
+    await bookingRepo.save(bookingMay3a)
+    await bookingRepo.save(bookingMay3b)
+    await bookingRepo.save(bookingMay4)
+
+    const results = await bookingRepo.findForDate(new Date('2026-05-03T12:00:00Z'), TZ)
+
+    const names = results.map((b) => b.toDto().bookerName)
+    expect(names).toContain('FindDateA')
+    expect(names).toContain('FindDateB')
+    expect(names).not.toContain('FindDateC')
+    expect(results).toHaveLength(2)
+  })
 })

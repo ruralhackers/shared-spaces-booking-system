@@ -77,6 +77,25 @@ export class BookingPrismaRepository implements BookingRepository {
     return rows.map((r) => this.toEntity(r as PrismaBookingRow))
   }
 
+  async findForDate(date: Date, tz: string): Promise<Booking[]> {
+    const zoned = toZonedTime(date, tz)
+    const year = zoned.getFullYear()
+    const month = zoned.getMonth()
+    const day = zoned.getDate()
+
+    const dayStart = fromZonedTime(new Date(year, month, day, 0, 0, 0), tz)
+    const dayEnd = fromZonedTime(new Date(year, month, day + 1, 0, 0, 0), tz)
+
+    const rows = await this.prisma.booking.findMany({
+      where: {
+        status: 'active',
+        startsAt: { gte: dayStart, lt: dayEnd }
+      },
+      orderBy: { startsAt: 'asc' }
+    })
+    return rows.map((r) => this.toEntity(r as PrismaBookingRow))
+  }
+
   async save(booking: Booking): Promise<void> {
     const dto = booking.toDto()
     // Note: Overlap checking is enforced in the domain layer (Booking.create)

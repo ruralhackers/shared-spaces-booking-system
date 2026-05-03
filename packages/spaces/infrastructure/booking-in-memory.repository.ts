@@ -27,6 +27,24 @@ export class InMemoryBookingRepository implements BookingRepository {
     })
   }
 
+  async findForDate(date: Date, tz: string): Promise<Booking[]> {
+    const targetDate = toZonedTime(date, tz)
+    const targetDay = targetDate.getDate()
+    const targetMonth = targetDate.getMonth()
+    const targetYear = targetDate.getFullYear()
+
+    return Array.from(this.bookings.values()).filter((b) => {
+      const dto = b.toDto()
+      if (dto.status !== 'active') return false
+      const startZoned = toZonedTime(new Date(dto.startsAt), tz)
+      return (
+        startZoned.getDate() === targetDay &&
+        startZoned.getMonth() === targetMonth &&
+        startZoned.getFullYear() === targetYear
+      )
+    })
+  }
+
   async findActiveAt(at: Date): Promise<Booking[]> {
     return Array.from(this.bookings.values()).filter((b) => {
       const dto = b.toDto()
