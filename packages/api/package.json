@@ -1,0 +1,27 @@
+{
+  "name": "@dfs/api",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./client/index.ts",
+    "./domain": "./domain/index.ts",
+    "./infrastructure": "./infrastructure/index.ts"
+  },
+  "dependencies": {
+    "@dfs/common": "workspace:*",
+    "@dfs/database": "workspace:*",
+    "@dfs/notifications": "workspace:*",
+    "@dfs/spaces": "workspace:*",
+    "@trpc/server": "11.1.0",
+    "superjson": "2.2.2",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

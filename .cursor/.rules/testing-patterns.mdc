@@ -1,0 +1,34 @@
+---
+description: Testing patterns - see ai-rules for complete guide
+globs: packages/**/*.test.ts
+alwaysApply: false
+---
+
+# Testing with Bun
+
+**📚 Complete Guide**: `ai-rules/conventions/testing-with-bun.md`
+**📖 Examples**: `ai-rules/examples/user-management/complete-implementation.md`
+
+## Critical Rules
+- **Framework**: ALWAYS use Bun test (NOT Jest)
+- **Imports**: `import { describe, it, expect, mock } from 'bun:test'`
+- **Mocking**: Use `mock()` from `bun:test`
+- **Pattern**: AAA (Arrange, Act, Assert)
+- **Naming**: `[file-name].test.ts`
+
+## Running Tests
+```bash
+bun test                        # All tests
+bun test <file_path>           # Specific file
+TEST_LOGGER=1 bun test         # With logs
+```
+
+## NEVER Use
+- Jest imports or syntax
+- `jest.mock()` - use Bun's `mock()`
+
+See `ai-rules/conventions/testing-with-bun.md` for:
+- Complete test templates
+- Service and repository test examples
+- Mocking patterns
+- Integration test setup

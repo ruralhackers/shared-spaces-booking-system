@@ -1,0 +1,6 @@
+[test]
+environment = "happy-dom"
+
+# Webapp tests require path aliases from apps/webapp/tsconfig.json.
+# Run them separately: cd apps/webapp && bun test
+exclude = ["apps/webapp/**"]

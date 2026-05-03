@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Space {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  displayName String
+  description String
+  openHours   Json
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings       Booking[]
+  bookingSeries  BookingSeries[]
+
+  @@map("spaces")
+}
+
+enum BookingStatus {
+  active
+  cancelled
+}
+
+enum CancelledBy {
+  booker
+  admin
+}
+
+enum RecurrenceFrequency {
+  daily
+  weekly
+}
+
+model BookingSeries {
+  id          String               @id @default(cuid())
+  spaceId     String
+  bookerName  String
+  frequency   RecurrenceFrequency
+  startTime   String
+  endTime     String
+  firstDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime             @default(now())
+
+  space    Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@map("booking_series")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  spaceId     String
+  seriesId    String?
+  bookerName  String
+  startsAt    DateTime
+  endsAt      DateTime
+  status      BookingStatus @default(active)
+  createdAt   DateTime      @default(now())
+  cancelledAt DateTime?
+  cancelledBy CancelledBy?
+
+  space  Space          @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  series BookingSeries? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+
+  @@index([spaceId, status, startsAt])
+  @@index([seriesId, startsAt])
+  @@map("bookings")
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@dfs/spaces",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./index.ts",
+    "./testing": "./testing.ts"
+  },
+  "dependencies": {
+    "@dfs/common": "workspace:*",
+    "@dfs/database": "workspace:*",
+    "@dfs/notifications": "workspace:*",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

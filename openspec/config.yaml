@@ -1,0 +1,85 @@
+schema: spec-driven
+
+context: |
+  Tech stack: TypeScript (strict), Bun, Elysia + tRPC + better-auth in apps/api,
+  Vite + React 19 + TanStack Router + shadcn/ui + Tailwind v4 in apps/webapp,
+  Expo 54 + React Native + NativeWind in apps/mobile, Prisma + PostgreSQL
+  (PGlite in-memory for integration tests via createTestPrisma() from
+  @dfs/database/testing)
+  Monorepo with Bun workspaces: packages (api, auth, common, database, ui,
+  users) and apps (api, webapp, mobile). Package prefix: @dfs/
+  Architecture: Domain-Driven Design with Hexagonal Architecture
+  (Ports & Adapters), bounded contexts split across packages/ and apps/
+  Layers per bounded context: domain/ (entities, VOs, ports, domain services)
+  → application/ (services with run() entry point, DTOs) → infrastructure/
+  (adapters implementing ports, repositories, HTTP/tRPC wiring)
+  apps/* are thin shells — no domain logic
+  Auth: better-auth integrated via @dfs/auth
+  Testing: bun test (unit, *.test.ts), bun test with PGlite (integration,
+  *.integration.test.ts). Always run tests from the terminal — the IDE runner
+  is not the source of truth
+  Linting: Biome (bun run lint, bun run lint:fix, bun run format)
+  All code, comments, and documentation in English
+
+  Project guidelines (source of truth): All artifact creation and
+  implementation MUST read and follow the guidelines in
+  .agents/skills/guidelines/:
+  - guidelines/hexagonal-architecture — layers, bounded contexts, ports and adapters
+  - guidelines/design-principles — naming (kebab-case files, PascalCase classes,
+    camelCase methods, run() entry point), constructor injection, no getters/setters,
+    no JSDoc unless requested, immutable entities/VOs with create()/fromDto()/toDto()
+  - guidelines/testing-standards — test structure, FIRST principles, PGlite
+    integration tests, InMemory fakes for application services
+  - guidelines/tdd-practices — TDD 5-step cycle, inside-out
+  - guidelines/frontend-patterns — components, hooks, CSS Modules / Tailwind,
+    shadcn/ui, TanStack Router, tRPC integration
+  - guidelines/git-strategy — conventional commits, branch strategy
+
+rules:
+  proposal:
+    - Always include a Non-goals section
+    - Reference affected packages (packages/*) and apps (apps/*)
+    - Identify which bounded context(s) the change belongs to
+  specs:
+    - Write scenarios in Given/When/Then format
+    - Organize specs by bounded context matching packages/ or apps/ structure
+    - Include edge cases and error scenarios
+  design:
+    - Read .agents/skills/guidelines/hexagonal-architecture/ references before designing
+    - Read .agents/skills/guidelines/frontend-patterns/ references for frontend design
+    - Map components to hexagonal layers (domain, application, infrastructure)
+    - Identify ports (domain interfaces) and adapters (infrastructure implementations)
+    - Application services expose a single run() method; invariants live in entities/VOs
+    - Bounded contexts communicate through application services or domain ports,
+      never through direct adapter coupling
+    - Configuration enters through factories and policy objects; application services
+      do not import config directly
+    - Frontend state — TanStack Query for server state, local useState/hooks for
+      view state, shared UI via @dfs/ui tokens and CVA variants
+  tasks:
+    - Read .agents/skills/guidelines/tdd-practices/ references before creating tasks
+    - Read .agents/skills/guidelines/testing-standards/ references for test types per layer
+    - Tasks with behavior (entities, VOs, application services, repositories, hooks,
+      components) use TDD format — RED write failing test → GREEN implement →
+      COMMIT (conventional commit) → REFACTOR
+    - Tasks without behavior (types, DTOs, wiring, schema migrations) are plain
+      tasks without TDD format
+    - Order tasks inside-out — domain first, then application, then infrastructure
+    - Keep tasks small enough for one TDD cycle
+    - Testing strategy per layer
+    - Domain (entities, VOs, domain services) — unit tests with bun test (.test.ts)
+    - Application (services with run()) — unit tests with InMemory repositories (.test.ts)
+    - Infrastructure DB/repository adapters — integration tests with PGlite via
+      createTestPrisma() (.integration.test.ts)
+    - Infrastructure HTTP/tRPC — integration/e2e tests against a running Elysia
+      server (.integration.test.ts)
+    - Frontend components and hooks — unit tests with Testing Library (.test.tsx)
+    - Frontend user journeys — e2e tests with Playwright when applicable
+    - Use InMemory repositories for application service tests. Never mock Prisma
+      directly — use PGlite for real database behavior in integration tests
+    - After any schema change, regenerate packages/database/prisma/schema.sql with
+      `bun run -F @dfs/database db:sync`
+    - Always include a final validation group — run /task-validate,
+      /task-code-review, /task-tests-review, /task-architecture-review, and for
+      frontend changes /task-frontend-review
+    - Always include a final task — commit all changes with a conventional commit message

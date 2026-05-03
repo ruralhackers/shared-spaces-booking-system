@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <title>Shared Spaces</title>
+    
+    <!-- PWA Install Metadata -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="oklch(1 0 0)" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="oklch(0.145 0 0)" media="(prefers-color-scheme: dark)">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <script>
+      ;(() => {
+        const t = localStorage.getItem('theme')
+        const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
+        document.documentElement.classList.toggle('dark', t === 'dark' || (!t && prefersDark))
+        const p = localStorage.getItem('theme-preset')
+        if (p) document.documentElement.dataset.themePreset = p
+      })()
+    </script>
+  </head>
+  <body class="min-h-screen antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

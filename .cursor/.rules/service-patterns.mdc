@@ -1,0 +1,33 @@
+---
+description: Service patterns - see ai-rules for complete guide
+globs: packages/**/services/**
+alwaysApply: false
+---
+
+# Service Patterns
+
+**📚 Complete Guide**: `ai-rules/conventions/service-patterns.md`
+**📖 Examples**: `ai-rules/examples/user-management/complete-implementation.md`
+
+## Critical Rules
+- **Entry Point**: Services ALWAYS have public `run()` method
+- **Single Responsibility**: One clear purpose per service
+- **Constructor Injection**: ALWAYS use constructor-based DI
+- **Logging**: Include private logger using LoggerFactory
+
+## Service Types
+
+### Domain Services
+- **Location**: `packages/<context>/domain/services/`
+- **Purpose**: Pure business logic, domain concepts
+- **Dependencies**: Only domain objects
+
+### Application Services
+- **Location**: `packages/<context>/application/<entity>/`
+- **Purpose**: Use cases, orchestration
+- **Dependencies**: Repositories, domain services, adapters
+
+See `ai-rules/conventions/service-patterns.md` for:
+- Complete templates with logging
+- Full examples (UserCreator, OrderProcessor)
+- Best practices and patterns

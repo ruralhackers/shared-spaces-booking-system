@@ -1,0 +1,35 @@
+{
+  "name": "@dfs/database",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./testing": "./src/testing.ts"
+  },
+  "scripts": {
+    "generate": "prisma generate",
+    "db:sql": "bun --env-file=../../.env.local prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script -o prisma/schema.sql",
+    "db:push:dev": "bun --env-file=../../.env.dev prisma db push",
+    "db:push:prd": "bun --env-file=../../.env prisma db push",
+    "db:push": "bun --env-file=../../.env.local prisma db push",
+    "db:seed": "bun --env-file=../../.env.local run src/seed.ts",
+    "db:fresh": "bun migrate:reset && bun db:push && bun db:seed",
+    "db:sync": "bun generate && bun db:sql && bun db:push",
+    "db:studio": "bun --env-file=../../.env.local prisma studio",
+    "migrate:dev": "bun --env-file=../../.env.local prisma migrate dev",
+    "migrate:deploy": "bun --env-file=../../.env.local prisma migrate deploy",
+    "migrate:reset": "bun --env-file=../../.env.local prisma migrate reset"
+  },
+  "dependencies": {
+    "@prisma/client": "7.8.0",
+    "@prisma/adapter-libsql": "7.8.0",
+    "@libsql/client": "^0.17.3"
+  },
+  "devDependencies": {
+    "prisma": "7.8.0",
+    "prisma-json-types-generator": "4.1.1",
+    "typescript": "latest"
+  }
+}

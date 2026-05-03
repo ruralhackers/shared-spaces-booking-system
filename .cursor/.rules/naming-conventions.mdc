@@ -1,0 +1,30 @@
+---
+description: Naming conventions - see ai-rules for complete guide
+alwaysApply: true
+---
+
+# Naming Conventions
+
+**📚 Complete Guide**: `ai-rules/conventions/naming-conventions.md`
+
+## Critical Rules (STRICTLY ENFORCED)
+
+### Files
+- **ALWAYS `kebab-case.type.ts`**: `user-creator.service.ts`, `user-prisma.repository.ts`
+- **Entities**: `*.entity.ts` (e.g., `user.entity.ts`)
+- **Value Objects**: `*.vo.ts` (e.g., `email.vo.ts`, `id.vo.ts`)
+
+### Classes
+- **ALWAYS `PascalCase`**: `UserCreator`, `UserPrismaRepository`
+
+### Methods
+- **ALWAYS `camelCase`**: `run()`, `findById()`, `validateEmail()`
+- **Services MUST have `run()` as entry point**
+
+### Packages
+- **ALWAYS `@dfs/package-name`**: `@dfs/common`, `@dfs/users`
+
+See the complete guide in `ai-rules/conventions/naming-conventions.md` for:
+- Directory structure patterns
+- File organization by layer
+- Detailed examples and edge cases

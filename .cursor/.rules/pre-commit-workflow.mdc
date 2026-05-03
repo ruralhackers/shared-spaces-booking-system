@@ -1,0 +1,52 @@
+---
+description: Pre-commit workflow checks that must pass before committing
+globs: "**/*"
+---
+
+# Pre-Commit Workflow
+
+**CRITICAL**: Before committing any changes, you MUST run and pass all three checks.
+
+## Quick Command (All Checks)
+
+```bash
+bun run lint:fix && bun run typecheck && bun test
+```
+
+## Required Checks
+
+### 1. Lint Check - Code style and linting
+
+```bash
+bun run lint        # Check only
+bun run lint:fix    # Auto-fix issues
+bun run lint:unsafe # Unsafe auto-fix
+```
+
+### 2. TypeScript Check - Type safety
+
+```bash
+bun run typecheck         # Check types
+bun run typecheck:watch   # Watch mode
+```
+
+### 3. Tests - Functionality
+
+```bash
+bun test              # Run all tests
+bun test --watch      # Watch mode
+```
+
+## CI Workflows
+
+These checks run automatically in GitHub Actions:
+- **Lint** - Linting and formatting
+- **TypeScript Type Check** - Type safety
+- **Tests** - All tests must pass
+
+**Never commit code that fails any of these checks.**
+
+## Complete Guidelines
+
+For detailed pre-commit workflow documentation, see:
+`ai-rules/conventions/pre-commit-workflow.md`

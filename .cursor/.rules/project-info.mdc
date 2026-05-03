@@ -1,0 +1,47 @@
+---
+description: Project information and documentation structure
+alwaysApply: true
+---
+
+# Project Information
+- **Project Name**: ddd-fullstack-starter
+- **Project Identifier**: @dfs (ddd-fullstack-starter)
+- **Description**: Monorepo boilerplate following DDD principles with ports and adapters architecture
+
+## Documentation Structure
+
+### Template Documentation (How to use this boilerplate)
+All patterns, conventions, and examples are in `ai-rules/`:
+- **Naming conventions**: `ai-rules/conventions/naming-conventions.md`
+- **Service patterns**: `ai-rules/conventions/service-patterns.md`
+- **Repository patterns**: `ai-rules/conventions/repository-patterns.md`
+- **File organization**: `ai-rules/conventions/file-organization.md`
+- **Testing with Bun**: `ai-rules/conventions/testing-with-bun.md`
+- **DDD principles**: `ai-rules/architecture/ddd-principles.md`
+- **Complete examples**: `ai-rules/examples/user-management/complete-implementation.md`
+
+### Project Documentation (Project-specific docs)
+Store project development documentation in `project-docs/`:
+- **Development plans**: `project-docs/development/`
+- **Architecture decisions (ADRs)**: `project-docs/decisions/`
+- **Feature documentation**: `project-docs/features/`
+- **Project roadmap**: `project-docs/roadmap.md`
+
+## MCP Tools (Context7)
+
+Always use Context7 MCP tools automatically (without explicit user request) when:
+
+- **Code generation**: Creating new services, repositories, entities, or any implementation code
+- **Setup/Configuration**: Setting up libraries, frameworks, build tools, or project configuration
+- **Library/API documentation**: Looking up usage patterns, APIs, or best practices for external libraries
+
+### How to use Context7
+
+1. First resolve the library ID using `resolve-library-id`
+2. Then fetch documentation with `get-library-docs`
+
+This ensures code generation follows current library APIs and best practices.
+
+## Context
+TypeScript monorepo using Bun runtime with Domain-Driven Design and Hexagonal Architecture.
+Bounded contexts organized in packages/[context]/ following DDD principles.

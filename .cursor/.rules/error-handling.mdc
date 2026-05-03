@@ -1,0 +1,46 @@
+---
+description: Error handling - see ai-rules for complete guide
+globs: packages/**/errors/**, packages/**/services/**, packages/**/application/**
+alwaysApply: false
+---
+
+# Error Handling
+
+**📚 Complete Guide**: `ai-rules/conventions/error-handling.md`
+
+## Critical Rules
+- **Always use domain errors** from `@dfs/common/domain`, never `new Error()`
+- **TRPC integration**: Domain errors are automatically mapped to TRPC errors via middleware
+- **Extend base errors**: Bounded contexts create their own errors by extending base domain errors
+
+## Error Types
+
+| Error | Status | When to Use |
+|-------|--------|-------------|
+| `ValidationError` | 400 | Invalid input, format errors |
+| `UnauthorizedError` | 401 | Missing/invalid auth |
+| `ForbiddenError` | 403 | Insufficient permissions |
+| `NotFoundError` | 404 | Resource not found |
+| `ConflictError` | 409 | Duplicate resource |
+| `BusinessRuleError` | 422 | Business logic violations |
+
+## Quick Examples
+
+```typescript
+import { NotFoundError, ValidationError, ConflictError } from '@dfs/common/domain'
+
+// Validation
+throw new ValidationError('Email is required', 'email')
+throw ValidationError.invalidFormat('email', value)
+
+// Not found
+throw NotFoundError.withId('User', id)
+
+// Conflict
+throw ConflictError.alreadyExists('User', email)
+```
+
+See `ai-rules/conventions/error-handling.md` for:
+- Full error hierarchy and static factory methods
+- TRPC integration details
+- How to extend with domain-specific errors

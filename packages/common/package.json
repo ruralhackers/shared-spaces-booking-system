@@ -1,0 +1,21 @@
+{
+  "name": "@dfs/common",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/uuid": "^10.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@dfs/database": "workspace:*",
+    "@logtail/node": "^0.5.3",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "decimal.js": "^10.6.0",
+    "@trpc/server": "11.1.0",
+    "uuid": "^13.0.0"
+  }
+}

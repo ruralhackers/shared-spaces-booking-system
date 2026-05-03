@@ -1,0 +1,7 @@
+export { BookingNotFoundError } from './booking-not-found.error'
+export { BookingOverlapError } from './booking-overlap.error'
+export { EmptySeriesError } from './empty-series.error'
+export { NameMismatchError } from './name-mismatch.error'
+export { OutsideOpenHoursError } from './outside-open-hours.error'
+export { SpaceNotFoundError } from './space-not-found.error'
+export { SpaceSlugCollisionError } from './space-slug-collision.error'

@@ -1,0 +1,52 @@
+projects:
+  - name: ddd-fullstack-starter
+    environments:
+      - name: Production
+        databases:
+          - name: dfs-db
+            plan: basic-256mb
+            diskSizeGB: 1
+            databaseName: ddd_fullstack_starter
+            user: dfs_user
+        services:
+          - type: web
+            name: dfs-webapp
+            runtime: node
+            plan: starter
+            buildCommand: |
+              curl -fsSL https://bun.sh/install | bash &&
+              export PATH="$HOME/.bun/bin:$PATH" &&
+              bun install &&
+              cd packages/database && bun x prisma generate &&
+              cd ../../apps/webapp && NODE_OPTIONS="--max-old-space-size=4096" SKIP_ENV_VALIDATION=1 bun run build
+            preDeployCommand: |
+              curl -fsSL https://bun.sh/install | bash &&
+              export PATH="$HOME/.bun/bin:$PATH" &&
+              cd packages/database && bun x prisma db push
+            startCommand: |
+              cp -r apps/webapp/public apps/webapp/.next/standalone/apps/webapp/public &&
+              cp -r apps/webapp/.next/static apps/webapp/.next/standalone/apps/webapp/.next/static &&
+              node apps/webapp/.next/standalone/apps/webapp/server.js
+            envVars:
+              - key: NODE_VERSION
+                value: "22"
+              - key: DATABASE_URL
+                fromDatabase:
+                  name: dfs-db
+                  property: connectionString
+              - key: BETTER_AUTH_SECRET
+                generateValue: true
+              - key: BETTER_AUTH_URL
+                sync: false
+              - key: NODE_ENV
+                value: production
+              - key: PORT
+                value: "10000"
+              - key: HOSTNAME
+                value: "0.0.0.0"
+              - key: EMAIL_SERVER
+                sync: false
+              - key: EMAIL_FROM
+                sync: false
+              - key: DATABASE_SSL
+                value: "true"

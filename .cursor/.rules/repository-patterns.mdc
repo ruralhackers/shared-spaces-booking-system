@@ -1,0 +1,27 @@
+---
+description: Repository patterns - see ai-rules for complete guide
+globs: packages/**/repositories/**
+alwaysApply: false
+---
+
+# Repository Patterns (PORTS & ADAPTERS)
+
+**📚 Complete Guide**: `ai-rules/conventions/repository-patterns.md`
+**📖 Examples**: `ai-rules/examples/user-management/complete-implementation.md`
+
+## Critical Rules
+- **Interfaces**: Domain layer (`user.repository.ts`)
+- **Implementations**: Infrastructure layer (`user-prisma.repository.ts`)
+- **Naming**: MUST be `[Entity]PrismaRepository`
+- **Methods**: Standard CRUD + business-specific methods
+
+## Entity Transformation
+Entities MUST implement:
+- `static fromDto(data)` - Database → Entity
+- `toDto()` - Entity → Database
+
+See `ai-rules/conventions/repository-patterns.md` for:
+- Complete interface and implementation templates
+- Entity transformation patterns
+- Prisma-specific best practices
+- Full working examples

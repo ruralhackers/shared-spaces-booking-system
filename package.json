@@ -1,0 +1,47 @@
+{
+  "name": "ddd-fullstack-starter",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "init": "bun run scripts/init-project.ts",
+    "dev": "concurrently -n api,webapp -c blue,green \"bun run api\" \"bun run webapp\"",
+    "api": "bun run -F @dfs/api-server dev",
+    "webapp": "bun run -F webapp dev",
+    "redis": "docker compose --env-file .env.local -f docker-compose.yml up -d",
+    "db:sync": "bun run -F @dfs/database db:sync",
+    "format": "bun x biome format --write .",
+    "lint": "biome check .",
+    "lint:unsafe": "biome check --write --unsafe .",
+    "lint:fix": "biome check --write --max-diagnostics=20000 .",
+    "lint:errors": "bun x biome check --max-diagnostics=20000 --diagnostic-level=error .",
+    "typecheck": "tsc --noEmit",
+    "typecheck:watch": "tsc --noEmit --watch",
+    "test": "bun test packages/ apps/api/ && cd apps/webapp && bun test"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "apps/api",
+      "apps/webapp"
+    ],
+    "catalog": {
+      "zod": "^4.3.6"
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.2",
+    "@libsql/client": "^0.17.3",
+    "@prisma/adapter-libsql": "^7.8.0",
+    "@types/bun": "latest",
+    "concurrently": "^9.1.2",
+    "happy-dom": "^20.9.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0"
+  }
+}

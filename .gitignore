@@ -1,0 +1,65 @@
+# dependencies (bun install)
+node_modules
+
+# output
+out
+dist
+*.tgz
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# dotenv environment variable files
+.env.*
+!.env.example
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# IntelliJ based IDEs
+.idea
+
+# Finder (MacOS) folder config
+.DS_Store
+
+# Vim/Nano swap files
+*.swp
+*.swo
+*~
+
+
+# next.js
+~/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# vercel
+.vercel
+
+
+#prisma
+packages/database/prisma/generated/
+
+# SQLite database files
+data/
+
+.debug/
+
+# Claude Code local settings (but keep skills)
+.claude/settings*.json
+
+# Init script backups
+.init-backup/
+.playwright-mcp/
+

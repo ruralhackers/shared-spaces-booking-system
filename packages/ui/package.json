@@ -1,0 +1,31 @@
+{
+  "name": "@dfs/ui",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./tokens": "./src/tokens.ts",
+    "./tokens.tailwind": {
+      "require": "./src/tokens.tailwind.cjs",
+      "default": "./src/tokens.tailwind.ts"
+    },
+    "./tokens.css": "./dist/tokens.css",
+    "./cn": "./src/lib/cn.ts",
+    "./variants/button": "./src/variants/button.variants.ts"
+  },
+  "scripts": {
+    "build:tokens": "bun run scripts/build-css-vars.ts"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.1"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "typescript": "^5"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.2.5"
+  }
+}
