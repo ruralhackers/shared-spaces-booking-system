@@ -120,22 +120,33 @@ bun run -F @dfs/database db:sync
 
 ### Step 7: Build Webapp
 
+**IMPORTANT:** The webapp must be built with the production API URL set as an environment variable.
+
 ```bash
-# Build webapp static files
-bun run build
+# Build webapp with production API URL
+cd apps/webapp
+VITE_API_URL=https://your-domain.com bun run build
+cd ../..
 ```
 
+**Replace `your-domain.com`** with your actual domain (e.g., `salas.espacioarroelo.es`).
+
 **Expected output:**
-- `webapp build` completes successfully
+- `vite v6.x.x building for production...`
+- `✓ 3000+ modules transformed`
+- `✓ built in X.XXs`
 - `dist/` directory updated with new build
 
 **Verify build:**
 ```bash
 ls -la apps/webapp/dist/index.html
 stat -c %y apps/webapp/dist/index.html
+
+# Verify the production URL is in the build (not localhost)
+grep -o "https://your-domain.com" apps/webapp/dist/assets/index-*.js | head -1
 ```
 
-The timestamp should be recent (within the last minute).
+The timestamp should be recent (within the last minute), and the grep should return your production URL.
 
 **If build fails**, see [runbook.md](./runbook.md#build-failures).
 
@@ -242,7 +253,7 @@ From your local machine:
 - [ ] Pulled latest changes from `main`
 - [ ] Installed dependencies (`bun install --production`)
 - [ ] Ran migrations (`bun run -F @dfs/database db:sync`)
-- [ ] Built webapp (`bun run build`)
+- [ ] Built webapp with production URL (`cd apps/webapp && VITE_API_URL=https://your-domain.com bun run build`)
 - [ ] Restarted API service (`systemctl restart shared-spaces-api`)
 - [ ] Reloaded nginx (`systemctl reload nginx`)
 - [ ] Verified API responds: `curl http://127.0.0.1:4000/api/trpc/config.siteInfo`
@@ -274,7 +285,9 @@ echo "→ Running migrations..."
 bun run -F @dfs/database db:sync
 
 echo "→ Building webapp..."
-bun run build
+cd apps/webapp
+VITE_API_URL=https://your-domain.com bun run build
+cd ../..
 
 echo "→ Restarting API service..."
 systemctl restart shared-spaces-api

@@ -11,10 +11,14 @@ export function registerManifestRoute(app: Elysia, options: ManifestRouteOptions
     const manifest = {
       name: options.brandingConfig.name,
       short_name: options.brandingConfig.shortName,
+      description: `Reserva espacios compartidos en ${options.brandingConfig.shortName}`,
       start_url: '/',
+      scope: '/',
       display: 'standalone',
+      orientation: 'portrait',
       background_color: '#ffffff',
       theme_color: '#000000',
+      categories: ['productivity', 'lifestyle'],
       icons: [
         {
           src: `${options.webappUrl}/icon-192.png`,

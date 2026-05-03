@@ -119,22 +119,31 @@ mkdir -p apps/api/data
 # Run database migrations (creates/updates the SQLite file)
 bun run -F @dfs/database db:sync
 
-# Build webapp
-bun run build
+# Build webapp with production API URL
+cd apps/webapp
+VITE_API_URL=https://booking.your-domain.com bun run build
+cd ../..
 ```
+
+**IMPORTANT:** Replace `booking.your-domain.com` with your actual domain in the `VITE_API_URL` variable.
 
 **Expected output:**
 - `bun install` completes without errors
 - `db:sync` creates/updates `apps/api/data/app.db`
+- `vite v6.x.x building for production...`
+- `✓ built in X.XXs`
 - `build` creates `apps/webapp/dist/` directory
 
 **Verify:**
 ```bash
 ls -la apps/api/data/app.db
 ls -la apps/webapp/dist/index.html
+
+# Verify the production URL is in the build (not localhost)
+grep -o "https://booking.your-domain.com" apps/webapp/dist/assets/index-*.js | head -1
 ```
 
-Both files should exist.
+Both files should exist, and the grep should return your production URL (not localhost).
 
 ---
 

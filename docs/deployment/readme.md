@@ -56,6 +56,7 @@ The application is deployed on a VPS (your-domain.com) with a minimal stack opti
 - **[deploy.md](./deploy.md)** — Recurring deployment process (git pull, build, restart) — **AI agents read this**
 - **[runbook.md](./runbook.md)** — Troubleshooting and common operations
 - **[env-reference.md](./env-reference.md)** — Environment variables reference
+- **[pwa-installation.md](./pwa-installation.md)** — PWA installation guide for end users (Android, iOS, desktop)
 
 ## Quick Start
 
