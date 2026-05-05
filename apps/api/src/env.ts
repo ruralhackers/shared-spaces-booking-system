@@ -11,7 +11,7 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: process.env.NODE_ENV === 'production' ? z.string() : z.string().optional(),
     BETTER_AUTH_URL: z.url().optional(),
     // SQLite database file path (e.g., file:./data/app.db)
-    DATABASE_URL: z.url(),
+    DATABASE_URL: z.string(), // PGlite dataDir path (pglite:./data/pglite)
     EMAIL_SERVER: z.string().optional(),
     EMAIL_FROM: z.string().optional(),
     GOOGLE_CLIENT_ID: z.string().optional(),

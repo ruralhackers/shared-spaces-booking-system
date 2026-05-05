@@ -4,8 +4,8 @@ Prisma client, schema, and migration tooling. Shared across backend packages and
 
 ## Exports
 
-- `@dfs/database` — production client singleton. Reads `DATABASE_URL` at module load and pools connections against real Postgres via `@prisma/adapter-pg`. Use from application code.
-- `@dfs/database/testing` — `createTestPrisma()` factory. Spins up a fresh in-process PGlite instance, loads `prisma/schema.sql`, and returns a scoped `PrismaClient`. Use from integration tests.
+- `@dfs/database` — production client singleton. Reads `DATABASE_URL` at module load and connects to PGlite with file-based persistence (`dataDir`). Use from application code.
+- `@dfs/database/testing` — `createTestPrisma()` factory. Spins up a fresh in-memory PGlite instance, loads `prisma/schema.sql`, and returns a scoped `PrismaClient`. Use from integration tests.
 
 ## Schema
 
@@ -32,10 +32,10 @@ After editing `schema.prisma`, run `bun db:sync` to regenerate all three: client
 
 ## Testing
 
-Integration tests do NOT hit Docker Postgres. They call `createTestPrisma()` from `@dfs/database/testing`, which boots PGlite (WASM Postgres in-memory) per test suite and tears it down in `afterAll`. Docker remains only for `bun run dev`.
+Integration tests do NOT require Docker. They call `createTestPrisma()` from `@dfs/database/testing`, which boots PGlite (embedded PostgreSQL via WASM) in-memory per test suite and tears it down in `afterAll`.
 
 See [docs/conventions/patterns/testing.md](../../docs/conventions/patterns/testing.md) for the pattern and fidelity caveats.
 
 ### Prisma version and the PGlite adapter
 
-`pglite-prisma-adapter` is a community package that trails official Prisma releases. When bumping `@prisma/client` / `@prisma/adapter-pg`, re-run `bun test` before merging — if the adapter lags, it may pull an older `@prisma/driver-adapter-utils` into the tree. Two versions can coexist as long as tests pass, but a breaking change in the driver-adapter protocol will surface here first.
+`pglite-prisma-adapter` is a community package that trails official Prisma releases. When bumping `@prisma/client`, re-run `bun test` before merging — if the adapter lags, it may pull an older `@prisma/driver-adapter-utils` into the tree. Two versions can coexist as long as tests pass, but a breaking change in the driver-adapter protocol will surface here first.

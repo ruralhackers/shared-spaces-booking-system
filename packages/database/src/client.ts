@@ -1,9 +1,9 @@
 import { mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
+import { PGlite } from '@electric-sql/pglite'
+import { PrismaPGlite } from 'pglite-prisma-adapter'
 import { PrismaClient } from '../prisma/generated/client'
-import { initializeSqlitePragmas } from './sqlite-init'
 
 // https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/generating-prisma-client
 const isServer = typeof (globalThis as { window?: unknown }).window === 'undefined'
@@ -15,16 +15,16 @@ const globalForPrisma = globalThis as unknown as {
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 
 function resolveDatabasePath(): string {
-  const raw = process.env.DATABASE_URL?.replace('file:', '') ?? './data/app.db'
+  const raw = process.env.DATABASE_URL?.replace('pglite:', '') ?? './data/pglite'
   return raw.startsWith('/') ? raw : resolve(projectRoot, raw)
 }
 
 async function createClient(): Promise<PrismaClient> {
-  const dbPath = resolveDatabasePath()
-  mkdirSync(dirname(dbPath), { recursive: true })
-  const adapter = new PrismaLibSql({ url: `file:${dbPath}` })
+  const dataDir = resolveDatabasePath()
+  mkdirSync(dirname(dataDir), { recursive: true })
+  const pglite = new PGlite({ dataDir })
+  const adapter = new PrismaPGlite(pglite)
   const prisma = new PrismaClient({ adapter })
-  await initializeSqlitePragmas(prisma)
   return prisma
 }
 

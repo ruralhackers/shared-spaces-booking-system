@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@prisma/client": "7.8.0",
-    "@prisma/adapter-libsql": "7.8.0",
-    "@libsql/client": "^0.17.3"
+    "@electric-sql/pglite": "^0.4.5",
+    "pglite-prisma-adapter": "^0.7.2"
   },
   "devDependencies": {
     "prisma": "7.8.0",

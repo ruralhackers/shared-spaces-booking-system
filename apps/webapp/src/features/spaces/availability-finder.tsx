@@ -1,11 +1,13 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { api } from '@/trpc/react'
 import { AvailabilityResultsList } from './availability-results-list'
 import { AvailabilityTimePicker } from './availability-time-picker'
+import { writeStoredBookerName } from './booker-name-storage'
 import { QuickBookSheet } from './quick-book-sheet'
 
 type Preset = 'today' | 'tomorrow' | 'other' | null
@@ -112,6 +114,30 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
   } = api.spaces.availability.useQuery(searchParams ?? { startsAt: '', endsAt: '' }, {
     enabled: !!searchParams
   })
+
+  const bookMutation = api.spaces.book.useMutation({
+    onSuccess: (_data, variables) => {
+      writeStoredBookerName(variables.bookerName)
+      setShowSheet(false)
+      setSheetData(null)
+      toast.success(t('booking:bookingConfirmed'))
+      void refetch()
+    },
+    onError: (e) => {
+      toast.error(e.message)
+    }
+  })
+
+  function handleConfirm(name: string, startsAt: Date, endsAt: Date) {
+    if (!sheetData) return
+    writeStoredBookerName(name)
+    bookMutation.mutate({
+      slug: sheetData.space.slug,
+      bookerName: name,
+      startsAt: startsAt.toISOString(),
+      endsAt: endsAt.toISOString()
+    })
+  }
 
   function handleTodayPreset() {
     const { hhmm, fellBack } = nextRoundHour(now, tz)
@@ -241,10 +267,10 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
           open={showSheet}
           onOpenChange={(open) => setShowSheet(open)}
           space={sheetData.space}
-          defaultDate={sheetData.date}
-          defaultStart={`${sheetData.date}T${sheetData.start}:00`}
-          defaultEnd={`${sheetData.date}T${sheetData.end}:00`}
+          defaultStart={buildIso(sheetData.date, sheetData.start, tz)}
+          defaultEnd={buildIso(sheetData.date, sheetData.end, tz)}
           onCancel={() => setShowSheet(false)}
+          onConfirm={handleConfirm}
         />
       )}
     </div>

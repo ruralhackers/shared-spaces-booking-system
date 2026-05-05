@@ -1,32 +1,33 @@
 import { readFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { PGlite } from '@electric-sql/pglite'
 import { PrismaPGlite } from 'pglite-prisma-adapter'
 import { PrismaClient } from '../prisma/generated/client'
 
 const here = dirname(fileURLToPath(import.meta.url))
+const projectRoot = resolve(here, '..', '..', '..')
 const schemaSqlPath = join(here, '..', 'prisma', 'schema.sql')
 
-export interface TestPrisma {
-  client: PrismaClient
-  close: () => Promise<void>
+function resolveDatabasePath(): string {
+  const raw = process.env.DATABASE_URL?.replace('pglite:', '') ?? './data/pglite'
+  return raw.startsWith('/') ? raw : resolve(projectRoot, raw)
 }
 
-export async function createTestPrisma(): Promise<TestPrisma> {
-  // Create in-memory PGlite instance
-  const pglite = new PGlite()
+async function main() {
+  const dataDir = resolveDatabasePath()
+  console.log(`Initializing PGlite schema at: ${dataDir}`)
+
+  const pglite = new PGlite({ dataDir })
   const adapter = new PrismaPGlite(pglite)
   const client = new PrismaClient({ adapter })
 
-  // Connect to database
   await client.$connect()
 
   // Load and execute schema
   const schemaSql = await readFile(schemaSqlPath, 'utf8')
 
   // Split schema into individual statements and execute each
-  // Remove comments first, then split by semicolon
   const cleanedSql = schemaSql
     .split('\n')
     .filter((line) => !line.trim().startsWith('--'))
@@ -41,11 +42,13 @@ export async function createTestPrisma(): Promise<TestPrisma> {
     await client.$executeRawUnsafe(statement)
   }
 
-  return {
-    client,
-    async close() {
-      await client.$disconnect()
-      await pglite.close()
-    }
-  }
+  await client.$disconnect()
+  await pglite.close()
+
+  console.log('Schema initialized successfully!')
 }
+
+main().catch((e) => {
+  console.error('Schema initialization failed:', e)
+  process.exit(1)
+})

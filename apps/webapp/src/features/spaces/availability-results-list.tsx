@@ -42,17 +42,26 @@ function SpaceResultRow({
 }) {
   const { t } = useTranslation('spaces')
 
+  const hasColor = !!result.color
+
   if (result.state === 'free') {
     return (
-      <div className="flex items-center justify-between rounded-lg border p-3">
+      <div
+        className={`flex items-center justify-between rounded-lg border p-3 ${hasColor ? 'border-transparent' : ''}`}
+        style={result.color ? { backgroundColor: result.color } : undefined}
+      >
         <div className="flex items-center gap-2">
-          <span className="text-green-600 font-bold" aria-hidden>
+          <span
+            className={hasColor ? 'text-white font-bold' : 'text-green-600 font-bold'}
+            aria-hidden
+          >
             ✓
           </span>
-          <span className="font-medium">{result.spaceName}</span>
+          <span className={`font-medium ${hasColor ? 'text-white' : ''}`}>{result.spaceName}</span>
         </div>
         <Button
           size="sm"
+          className={hasColor ? 'bg-white/20 text-white hover:bg-white/30 border-0' : ''}
           onClick={() =>
             onReserve({ id: result.spaceSlug, slug: result.spaceSlug, name: result.spaceName })
           }
@@ -65,17 +74,30 @@ function SpaceResultRow({
 
   if (result.state === 'occupied') {
     return (
-      <div className="flex items-center justify-between rounded-lg border p-3">
+      <div
+        className={`flex items-center justify-between rounded-lg border p-3 ${hasColor ? 'border-transparent' : ''}`}
+        style={result.color ? { backgroundColor: result.color } : undefined}
+      >
         <div className="flex items-center gap-2">
-          <span className="text-red-500 font-bold" aria-hidden>
+          <span
+            className={hasColor ? 'text-white font-bold' : 'text-red-500 font-bold'}
+            aria-hidden
+          >
             ✗
           </span>
-          <span className="font-medium">{result.spaceName}</span>
+          <span className={`font-medium ${hasColor ? 'text-white' : ''}`}>{result.spaceName}</span>
           {result.occupiedBy && (
-            <span className="text-muted-foreground text-sm">({result.occupiedBy})</span>
+            <span className={hasColor ? 'text-white/80 text-sm' : 'text-muted-foreground text-sm'}>
+              ({result.occupiedBy})
+            </span>
           )}
         </div>
-        <Button size="sm" variant="outline" onClick={() => onViewDay(result.spaceSlug, chosenDate)}>
+        <Button
+          size="sm"
+          variant={hasColor ? 'secondary' : 'outline'}
+          className={hasColor ? 'bg-white/20 text-white hover:bg-white/30 border-0' : ''}
+          onClick={() => onViewDay(result.spaceSlug, chosenDate)}
+        >
           {t('viewDay')}
         </Button>
       </div>
@@ -84,14 +106,23 @@ function SpaceResultRow({
 
   // closed
   return (
-    <div className="flex items-center justify-between rounded-lg border p-3 opacity-50">
+    <div
+      className={`flex items-center justify-between rounded-lg border p-3 opacity-50 ${hasColor ? 'border-transparent' : ''}`}
+      style={result.color ? { backgroundColor: result.color } : undefined}
+    >
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground font-bold" aria-hidden>
+        <span
+          className={hasColor ? 'text-white font-bold' : 'text-muted-foreground font-bold'}
+          aria-hidden
+        >
           —
         </span>
-        <span className="font-medium">{result.spaceName}</span>
+        <span className={`font-medium ${hasColor ? 'text-white' : ''}`}>{result.spaceName}</span>
       </div>
-      <span className="text-sm text-muted-foreground" data-testid="closed-label">
+      <span
+        className={hasColor ? 'text-sm text-white/80' : 'text-sm text-muted-foreground'}
+        data-testid="closed-label"
+      >
         {t('common:closed')}
       </span>
     </div>
