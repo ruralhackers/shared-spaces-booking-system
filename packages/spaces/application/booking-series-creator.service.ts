@@ -54,17 +54,20 @@ export class BookingSeriesCreator {
     const zonedEnd = toZonedTime(input.endsAt, this.tz)
 
     // Normalize end to date (use local date, not UTC)
-    const firstDate = new Date(zonedStart)
-    firstDate.setHours(0, 0, 0, 0)
+    // Fix: Create date from local date string to avoid timezone shifts
+    const firstDateStr = zonedStart.toISOString().split('T')[0]
+    const firstDate = new Date(`${firstDateStr}T00:00:00`)
 
     let endDate: Date
     if (input.end.type === 'date') {
-      endDate = new Date(input.end.value as string)
-      endDate.setHours(0, 0, 0, 0)
+      // Fix: Create date from local date string to avoid timezone shifts
+      endDate = new Date(`${input.end.value as string}T00:00:00`)
     } else {
       // count
       const count = input.end.value as number
-      endDate = new Date(firstDate)
+      // Fix: Create date from local date string to avoid timezone shifts
+      const firstDateStr = firstDate.toISOString().split('T')[0]
+      endDate = new Date(`${firstDateStr}T00:00:00`)
       if (frequency.toString() === 'daily') {
         endDate = addDays(endDate, count - 1)
       } else {
