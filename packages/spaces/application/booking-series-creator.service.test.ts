@@ -246,4 +246,42 @@ describe('The BookingSeriesCreator', () => {
       expect(booking.toDto().seriesId).toBe(result.seriesId)
     }
   })
+
+  test('extracts time in local timezone, not UTC (timezone bug)', async () => {
+    // Arrange
+    const { service, bookingRepo } = makeService()
+    
+    // Simulate what frontend sends: 10:00 ART converted to UTC
+    // 10:00 ART (UTC-3) = 13:00 UTC
+    const startsAtUtc = new Date('2026-06-01T13:00:00.000Z') // 10:00 ART → UTC
+    const endsAtUtc = new Date('2026-06-01T14:00:00.000Z')   // 11:00 ART → UTC
+
+    // Act
+    const result = await service.run({
+      slug: 'chill-house',
+      bookerName: 'Ana',
+      startsAt: startsAtUtc,
+      endsAt: endsAtUtc,
+      frequency: 'daily',
+      end: { type: 'date', value: '2026-06-03' }
+    })
+
+    // Assert
+    // With the bug, booking would be at 13:00 ART (wrong)
+    // After fix, booking should be at 10:00 ART (correct)
+    const bookings = await bookingRepo.listAllActive()
+    expect(bookings).toHaveLength(3)
+    
+    // Check first booking time (should be 10:00 ART = 13:00 UTC)
+    const firstBooking = bookings[0]
+    if (!firstBooking) throw new Error('No booking created')
+    
+    const dto = firstBooking.toDto()
+    const startDate = new Date(dto.startsAt)
+    
+    // Convert to ART to check local time
+    // 10:00 ART = 13:00 UTC
+    // The bug would make it 16:00 UTC (13:00 ART)
+    expect(startDate.toISOString()).toBe('2026-06-01T13:00:00.000Z')
+  })
 })

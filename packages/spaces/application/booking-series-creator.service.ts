@@ -1,5 +1,6 @@
 import type { Clock } from '@dfs/common'
 import { addDays } from 'date-fns'
+import { toZonedTime } from 'date-fns-tz'
 import { BookerName } from '../domain/booker-name.vo'
 import { Booking } from '../domain/booking.entity'
 import type { BookingRepository } from '../domain/booking.repository'
@@ -48,8 +49,12 @@ export class BookingSeriesCreator {
     const bookerName = BookerName.create(input.bookerName)
     const frequency = RecurrenceFrequency.create(input.frequency)
 
-    // Normalize end to date
-    const firstDate = new Date(input.startsAt)
+    // Convert UTC timestamps to local timezone
+    const zonedStart = toZonedTime(input.startsAt, this.tz)
+    const zonedEnd = toZonedTime(input.endsAt, this.tz)
+
+    // Normalize end to date (use local date, not UTC)
+    const firstDate = new Date(zonedStart)
     firstDate.setHours(0, 0, 0, 0)
 
     let endDate: Date
@@ -68,9 +73,9 @@ export class BookingSeriesCreator {
       }
     }
 
-    // Extract time from input
-    const startTime = `${String(input.startsAt.getHours()).padStart(2, '0')}:${String(input.startsAt.getMinutes()).padStart(2, '0')}`
-    const endTime = `${String(input.endsAt.getHours()).padStart(2, '0')}:${String(input.endsAt.getMinutes()).padStart(2, '0')}`
+    // Extract time from input in local timezone
+    const startTime = `${String(zonedStart.getHours()).padStart(2, '0')}:${String(zonedStart.getMinutes()).padStart(2, '0')}`
+    const endTime = `${String(zonedEnd.getHours()).padStart(2, '0')}:${String(zonedEnd.getMinutes()).padStart(2, '0')}`
 
     const series = BookingSeries.create({
       spaceId: space.toDto().id,
