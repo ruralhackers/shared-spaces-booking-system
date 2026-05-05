@@ -89,6 +89,8 @@ export class BookingSeriesCreator {
 
     const occurrences = series.expandOccurrences(this.tz)
 
+    await this.seriesRepo.save(series)
+
     const created: BookingDto[] = []
     const skipped: Array<{ date: string; reason: string }> = []
 
@@ -127,8 +129,6 @@ export class BookingSeriesCreator {
     if (created.length === 0) {
       throw new EmptySeriesError()
     }
-
-    await this.seriesRepo.save(series)
 
     return {
       seriesId: series.toDto().id,
