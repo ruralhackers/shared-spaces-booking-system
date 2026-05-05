@@ -11,7 +11,7 @@ import {
   SheetHeader,
   SheetTitle
 } from '@/components/ui/sheet'
-import { formatTime } from '@/lib/format-time'
+import { bookingTz, formatInTimeZone, formatTime } from '@/lib/format-time'
 import { readStoredBookerName } from './booker-name-storage'
 
 interface QuickBookSheetProps {
@@ -60,6 +60,7 @@ export function QuickBookSheet({
   const [name, setName] = useState(() => readStoredBookerName())
   const { startsAt, endsAt } = computeTimes(defaultStart, defaultEnd)
 
+  const dateLabel = formatInTimeZone(startsAt, bookingTz(), 'EEE, MMM d')
   const startLabel = formatTime(startsAt.toISOString())
   const endLabel = formatTime(endsAt.toISOString())
   const duration = durationLabel(startsAt, endsAt)
@@ -79,7 +80,7 @@ export function QuickBookSheet({
         <SheetHeader>
           <SheetTitle>{t('booking:confirmBooking')}</SheetTitle>
           <SheetDescription data-testid="sheet-subtitle">
-            {space.name} · Today {startLabel} – {endLabel} ({duration})
+            {space.name} · {dateLabel} · {startLabel} – {endLabel} ({duration})
           </SheetDescription>
         </SheetHeader>
 

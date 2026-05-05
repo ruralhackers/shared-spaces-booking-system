@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { env } from '@/env'
 import { api } from '@/trpc/react'
 import { AvailabilityResultsList } from './availability-results-list'
 import { AvailabilityTimePicker } from './availability-time-picker'
@@ -81,7 +82,7 @@ function getLocalOffset(date: Date, tz: string): number {
   return (tzDate.getTime() - utcDate.getTime()) / 60_000
 }
 
-const DEFAULT_TZ = import.meta.env?.VITE_BOOKING_TZ ?? 'America/Argentina/Buenos_Aires'
+const DEFAULT_TZ = env.VITE_BOOKING_TZ
 
 interface AvailabilityFinderProps {
   // Allow injecting "now" for testing
