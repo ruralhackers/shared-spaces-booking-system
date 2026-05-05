@@ -1,10 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "deepseek-v4-pro",
+  "model": "openrouter/deepseek/deepseek-v4-pro",
   "mode": {
     "explore": {
       "description": "Thinking partner. Investigates the codebase, clarifies requirements, and prepares the ground for a proposal. Does NOT write code or final specs.",
-      "model": "deepseek-v4-pro",
+      "model": "openrouter/deepseek/deepseek-v4-pro",
       "temperature": 0.7,
       "reasoningEffort": "high",
       "tools": {
@@ -21,7 +21,7 @@
     },
     "plan": {
       "description": "OpenSpec plan mode. Generates the full change folder (proposal.md, design.md, specs/, tasks.md) under openspec/changes/<id>/. Loads the openspec-propose skill. Only writes inside openspec/.",
-      "model": "deepseek-v4-pro",
+      "model": "openrouter/deepseek/deepseek-v4-pro",
       "temperature": 0.2,
       "reasoningEffort": "high",
       "tools": {
@@ -38,7 +38,7 @@
     },
     "build": {
       "description": "OpenSpec build mode. Implements tasks from an existing change following hexagonal architecture and TDD. Loads the openspec-apply-change skill. ALWAYS reads openspec/changes/<id>/ before editing code.",
-      "model": "deepseek-v3.2",
+      "model": "openrouter/qwen/qwen3-coder",
       "temperature": 0.2,
       "reasoningEffort": "medium",
       "tools": {
@@ -55,7 +55,7 @@
     },
     "archive": {
       "description": "OpenSpec archive mode. Closes an implemented change: updates canonical specs, moves the change to archive/, and validates.",
-      "model": "deepseek-chat-v3.1",
+      "model": "openrouter/qwen/qwen3-coder",
       "temperature": 0.1,
       "reasoningEffort": "low",
       "tools": {
@@ -74,7 +74,7 @@
     "spec-writer": {
       "description": "Drafts a single OpenSpec artifact (proposal.md, design.md, spec delta, or tasks.md) for a given change id. Read-only on production code; writes only inside openspec/.",
       "mode": "subagent",
-      "model": "deepseek-v4-pro",
+      "model": "openrouter/deepseek/deepseek-v4-pro",
       "temperature": 0.1,
       "reasoningEffort": "low",
       "tools": {
@@ -91,7 +91,7 @@
     "spec-reviewer": {
       "description": "Reviews an OpenSpec change folder for completeness, internal consistency, and alignment with project conventions. Read-only.",
       "mode": "subagent",
-      "model": "deepseek-v4-pro",
+      "model": "openrouter/deepseek/deepseek-v4-pro",
       "temperature": 0.2,
       "reasoningEffort": "high",
       "tools": {
@@ -107,7 +107,7 @@
     "code-reviewer": {
       "description": "Reviews production code in a scoped diff against design, naming, and error-handling conventions. Applies fixes inside the scope.",
       "mode": "subagent",
-      "model": "qwen3-coder",
+      "model": "openrouter/qwen/qwen3-coder",
       "temperature": 0.2,
       "reasoningEffort": "high",
       "tools": {
@@ -123,7 +123,7 @@
     "tests-reviewer": {
       "description": "Reviews test quality and coverage inside a scoped diff. Fixes low-ambiguity issues and adds missing tests when behavior is clear.",
       "mode": "subagent",
-      "model": "qwen3-coder-30b-a3b-instruct",
+      "model": "openrouter/qwen/qwen3-coder-30b-a3b-instruct",
       "temperature": 0.2,
       "reasoningEffort": "medium",
       "tools": {
@@ -139,7 +139,7 @@
     "architecture-reviewer": {
       "description": "Reviews hexagonal/DDD architecture compliance inside a scoped diff and fixes violations.",
       "mode": "subagent",
-      "model": "deepseek-v4-pro",
+      "model": "openrouter/deepseek/deepseek-v4-pro",
       "temperature": 0.2,
       "reasoningEffort": "high",
       "tools": {
@@ -155,7 +155,7 @@
     "frontend-reviewer": {
       "description": "Reviews frontend changes (apps/webapp, apps/mobile) for component, hook, routing, and tRPC integration issues.",
       "mode": "subagent",
-      "model": "qwen3-coder",
+      "model": "openrouter/qwen/qwen3-coder",
       "temperature": 0.2,
       "reasoningEffort": "medium",
       "tools": {
@@ -171,7 +171,7 @@
     "project-validator": {
       "description": "Runs full project validation (lint, typecheck, tests), fixes issues, and re-runs until clean.",
       "mode": "subagent",
-      "model": "qwen3-coder",
+      "model": "openrouter/qwen/qwen3-coder",
       "temperature": 0,
       "reasoningEffort": "low",
       "tools": {
