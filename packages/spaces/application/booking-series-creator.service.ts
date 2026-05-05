@@ -42,9 +42,30 @@ export class BookingSeriesCreator {
     return 'Unknown error'
   }
 
-  {"console.log('DEBUG": "zonedStart:'", 'zonedEnd:': 'zonedEnd)'}
+  async run(input: CreateBookingSeriesInput): Promise<CreateBookingSeriesResult> {
+    const space = await this.spaceRepo.findBySlug(input.slug)
+    if (!space) throw new SpaceNotFoundError(input.slug)
 
-    {"console.log('DEBUG": 'end type is date', 'value': ", input.end.value)\n      endDate = new Date(input.end.value as string)\n      endDate.setHours(0, 0, 0, 0)\n      console.log('DEBUG: parsed endDate:"}
+    const bookerName = BookerName.create(input.bookerName)
+    const frequency = RecurrenceFrequency.create(input.frequency)
+
+    // Convert UTC timestamps to local timezone
+    const zonedStart = toZonedTime(input.startsAt, this.tz)
+    const zonedEnd = toZonedTime(input.endsAt, this.tz)
+
+    console.log('DEBUG series input:', JSON.stringify({ slug: input.slug, startsAt: input.startsAt, endsAt: input.endsAt, frequency: input.frequency, end: input.end, tz: this.tz }))
+    console.log('DEBUG zonedStart:', zonedStart.toISOString(), 'zonedEnd:', zonedEnd.toISOString())
+
+    // Normalize end to date (use local date, not UTC)
+    const firstDate = new Date(zonedStart)
+    firstDate.setHours(0, 0, 0, 0)
+
+    let endDate: Date
+    if (input.end.type === 'date') {
+      endDate = new Date(input.end.value as string)
+      endDate.setHours(0, 0, 0, 0)
+      console.log('DEBUG end.type=date, value:', input.end.value, '=> endDate:', endDate.toISOString())
+    } else {
       // count
       const count = input.end.value as number
       endDate = new Date(firstDate)
@@ -54,6 +75,7 @@ export class BookingSeriesCreator {
         // weekly
         endDate = addDays(endDate, (count - 1) * 7)
       }
+      console.log('DEBUG end.type=count, value:', count, '=> endDate:', endDate.toISOString())
     }
 
     // Extract time from input in local timezone
@@ -72,6 +94,7 @@ export class BookingSeriesCreator {
     })
 
     const occurrences = series.expandOccurrences(this.tz)
+    console.log('DEBUG occurrences count:', occurrences.length, 'firstDate:', firstDate.toISOString(), 'endDate:', endDate.toISOString(), 'startTime:', startTime, 'endTime:', endTime)
 
     const created: BookingDto[] = []
     const skipped: Array<{ date: string; reason: string }> = []
@@ -109,7 +132,9 @@ export class BookingSeriesCreator {
       }
     }
 
-    {"console.log('DEBUG": "All occurrences were skipped - throwing EmptySeriesError'}"}
+    if (created.length === 0) {
+      throw new EmptySeriesError()
+    }
 
     await this.seriesRepo.save(series)
 
