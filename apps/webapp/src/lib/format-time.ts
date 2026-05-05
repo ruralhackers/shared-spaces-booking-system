@@ -35,3 +35,5 @@ export function todayInBookingTz(): string {
 export function bookingTz(): string {
   return TZ
 }
+
+export { formatInTimeZone }
