@@ -72,8 +72,8 @@ chmod 700 /etc/shared-spaces
 
 # Create environment file
 cat > /etc/shared-spaces/api.env << 'EOF'
-# Database (SQLite file, relative to apps/api/)
-DATABASE_URL="file:./data/app.db"
+# Database (PGlite dataDir, relative to apps/api/)
+DATABASE_URL="pglite:./data/pglite"
 
 # Site Branding
 SITE_NAME="My Coliving Space"
@@ -113,11 +113,12 @@ cd /opt/apps/shared-spaces-booking-system
 # Install dependencies
 bun install
 
-# Create the data directory for SQLite
-mkdir -p apps/api/data
+# Create the data directory for PGlite
+mkdir -p apps/api/data/pglite
 
-# Run database migrations (creates/updates the SQLite file)
-bun run -F @dfs/database db:sync
+# Initialize PGlite schema (creates the database)
+# Initialize PGlite schema (creates the database)
+bun run packages/database/src/init-schema.ts
 
 # Build webapp with production API URL
 cd apps/webapp
@@ -129,14 +130,14 @@ cd ../..
 
 **Expected output:**
 - `bun install` completes without errors
-- `db:sync` creates/updates `apps/api/data/app.db`
+- Schema initialization creates `apps/api/data/pglite/` directory with PGlite database files
 - `vite v6.x.x building for production...`
 - `✓ built in X.XXs`
 - `build` creates `apps/webapp/dist/` directory
 
 **Verify:**
 ```bash
-ls -la apps/api/data/app.db
+ls -la apps/api/data/pglite/
 ls -la apps/webapp/dist/index.html
 
 # Verify the production URL is in the build (not localhost)
@@ -264,7 +265,7 @@ server {
         }
     }
 
-    # Block access to SQLite database file (defense in depth)
+    # Block access to PGlite database directory (defense in depth)
     location ~* \.db$ {
         deny all;
         return 404;
@@ -349,7 +350,7 @@ curl https://booking.your-domain.com/manifest.webmanifest
 - [ ] Bun installed and in PATH
 - [ ] Repository cloned to `/opt/apps/shared-spaces-booking-system`
 - [ ] Environment file at `/etc/shared-spaces/api.env` with correct values
-- [ ] SQLite database created at `apps/api/data/app.db`
+- [ ] PGlite database created at `apps/api/data/pglite/`
 - [ ] Dependencies installed, webapp built
 - [ ] systemd service running: `systemctl status shared-spaces-api`
 - [ ] Nginx configured and reloaded

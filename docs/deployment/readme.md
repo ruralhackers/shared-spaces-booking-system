@@ -29,7 +29,7 @@ The application is deployed on a VPS (your-domain.com) with a minimal stack opti
                     │
                     ▼
               ┌──────────────┐
-              │   SQLite     │  ← file: ./data/app.db
+              │   PGlite    │  ← pglite:./data/pglite
               │  (embedded)  │     zero config, zero RAM
               └──────────────┘
 ```
@@ -39,7 +39,7 @@ The application is deployed on a VPS (your-domain.com) with a minimal stack opti
 | Component | Technology | Why |
 |-----------|-----------|-----|
 | Runtime | Bun (native) | No Docker overhead, ~80MB RAM |
-| Database | SQLite (embedded) | Zero config, zero extra processes, file-based |
+| Database | PGlite (embedded PostgreSQL) | Zero config, zero extra processes, directory-based |
 | Reverse Proxy | Nginx | Already installed, SSL via certbot |
 | Webapp | Static files | Served by Nginx, 0 extra processes |
 | API | systemd unit | Auto-restart, logs via journalctl |
@@ -47,7 +47,7 @@ The application is deployed on a VPS (your-domain.com) with a minimal stack opti
 
 **Estimated resource usage (idle):**
 - Nginx: ~15 MB RAM
-- Bun API (includes SQLite): ~80 MB RAM
+- Bun API (includes PGlite): ~80 MB RAM
 - **Total**: ~100 MB RAM, <1% CPU
 
 ## Documentation Structure
@@ -72,9 +72,9 @@ The application is deployed on a VPS (your-domain.com) with a minimal stack opti
 1. Check [runbook.md](./runbook.md) for symptoms and fixes
 
 ## Key Decisions
+### Why PGlite instead of PostgreSQL?
 
-### Why SQLite instead of PostgreSQL?
-The app uses Prisma with SQLite (`file:./data/app.db`). For a low-traffic coliving booking system (~2 visits/hour), SQLite is ideal: zero config, zero extra processes, zero extra RAM. The database is a single file that can be backed up with `cp`.
+The app uses Prisma with PGlite (`pglite:./data/pglite`). For a low-traffic coliving booking system (~2 visits/hour), PGlite is ideal: zero config, zero extra processes, zero extra RAM, full PostgreSQL compatibility. The database is a directory that can be backed up with `cp -r`.
 
 ### Why Nginx instead of Caddy?
 Nginx is already installed and configured with Let's Encrypt certificates. Reusing it avoids installing another tool.
@@ -90,7 +90,7 @@ Nginx serves static files faster and with better caching than any Node/Bun proce
 
 ## Security Notes
 
-- SQLite file stored in `/opt/apps/shared-spaces-booking-system/apps/api/data/app.db` (not web-accessible)
+- PGlite directory stored in `/opt/apps/shared-spaces-booking-system/apps/api/data/pglite/` (not web-accessible)
 - API binds to `127.0.0.1:4000` (not `0.0.0.0`)
 - Secrets in `/etc/shared-spaces/api.env` with `chmod 600 root:root`
 - Nginx handles TLS termination (Let's Encrypt)

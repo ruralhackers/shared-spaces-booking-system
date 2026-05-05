@@ -110,9 +110,9 @@ bun run -F @dfs/database db:sync
 
 **Expected output:**
 - `Prisma schema loaded from prisma/schema.prisma`
-- `Datasource "db": SQLite database`
+- `Datasource "db": PostgreSQL database`
 - `The database is already in sync with the Prisma schema.` (if no changes)
-- Or schema changes applied to `apps/api/data/app.db`
+- Or schema changes applied to `apps/api/data/pglite/`
 
 **If migrations fail**, see [runbook.md](./runbook.md#migration-failures).
 
@@ -395,8 +395,8 @@ systemctl status shared-spaces-api
 # Create backup directory
 mkdir -p /root/backups
 
-# Copy SQLite database file
-cp /opt/apps/shared-spaces-booking-system/apps/api/data/app.db /root/backups/shared-spaces-$(date +%Y%m%d-%H%M%S).db
+# Copy PGlite database directory
+cp -r /opt/apps/shared-spaces-booking-system/apps/api/data/pglite /root/backups/shared-spaces-$(date +%Y%m%d-%H%M%S)-pglite
 
 # Verify backup
 ls -lh /root/backups/

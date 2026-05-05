@@ -157,25 +157,25 @@ The project uses **SQLite** as the database, stored as a single file in `./data/
 
 ### Database Location
 
-- **Development**: `./data/app.db` (created automatically on first run)
-- **Test**: Temporary files in `/tmp/prisma-test-*/` (cleaned up after tests)
-- **Production**: Configure via `DATABASE_URL` environment variable
+- **Development**: `./data/pglite/` (created automatically on first run)
+- **Test**: In-memory PGlite instances (no files, cleaned up after tests)
+- **Production**: Configure via `DATABASE_URL` environment variable (`pglite:./data/pglite`)
 
 ### Backup & Restore
 
 **Backup:**
 ```bash
-# Simple file copy
-cp -r ./data ./data-backup-$(date +%Y%m%d)
+# Simple directory copy
+cp -r ./data/pglite ./data-backup-$(date +%Y%m%d)
 
 # Or use tar for compression
-tar -czf backup-$(date +%Y%m%d).tar.gz ./data
+tar -czf backup-$(date +%Y%m%d).tar.gz ./data/pglite
 ```
 
 **Restore:**
 ```bash
 # From directory backup
-cp -r ./data-backup-20260502 ./data
+cp -r ./data-backup-20260502/pglite ./data/pglite
 
 # From tar backup
 tar -xzf backup-20260502.tar.gz
@@ -185,23 +185,26 @@ tar -xzf backup-20260502.tar.gz
 
 When deploying to platforms like **Fly.io**, **Railway**, or **Render**:
 
-1. **Configure persistent volume** for the `./data/` directory
-2. **Set `DATABASE_URL`** environment variable: `file:./data/app.db`
-3. **Run migrations** on first deploy: `bun run db:sync`
-4. **Schedule backups** by copying the `data/` directory to object storage
+1. **Configure persistent volume** for the `./data/pglite/` directory
+2. **Set `DATABASE_URL`** environment variable: `pglite:./data/pglite`
+3. **Initialize schema** on first deploy: `bun run packages/database/src/init-schema.ts`
+4. **Schedule backups** by copying the `data/pglite/` directory to object storage
 
 Example Fly.io volume configuration:
 ```toml
 [mounts]
   source = "app_data"
-  destination = "/app/data"
+  destination = "/app/data/pglite"
 ```
 
-### SQLite Pragmas
+### PGlite Configuration
 
-The database is automatically configured with optimal settings:
-- `journal_mode = WAL` - Write-Ahead Logging for better concurrency
-- `foreign_keys = ON` - Enforce referential integrity
+The database uses PGlite (embedded PostgreSQL) with automatic configuration:
+- Full PostgreSQL compatibility (real JSONB, real enum types)
+- No separate server process required
+- File-based persistence in `data/pglite/` directory
+- Foreign keys enforced by default
+- Optimal settings for embedded use
 - `busy_timeout = 5000` - Wait up to 5 seconds for locks
 - `synchronous = NORMAL` - Balance between safety and performance
 

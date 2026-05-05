@@ -12,7 +12,7 @@ Location: `/etc/shared-spaces/api.env`
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `DATABASE_URL` | — | `file:./data/app.db` | SQLite database file path. Format: `file:./path/to/file.db` |
+| `DATABASE_URL` | — | `pglite:./data/pglite` | PGlite dataDir path. Format: `pglite:./path/to/dir` or `pglite:/absolute/path` |
 
 **Example:**
 ```bash
@@ -22,8 +22,8 @@ DATABASE_URL="file:./data/app.db"
 **Notes:**
 - Path is relative to `apps/api/` working directory
 - The `data/` directory must exist (created during initial setup)
-- The SQLite file is created automatically on first run / migration
-- To use an absolute path: `DATABASE_URL="file:/opt/apps/shared-spaces-booking-system/apps/api/data/app.db"`
+- The PGlite directory is created automatically on first run / schema initialization
+- To use an absolute path: `DATABASE_URL="pglite:/opt/apps/shared-spaces-booking-system/apps/api/data/pglite"`
 
 ---
 
@@ -119,8 +119,8 @@ VITE_API_URL="https://booking.your-domain.com"
 
 `/etc/shared-spaces/api.env`:
 ```bash
-# Database (SQLite file, relative to apps/api/)
-DATABASE_URL="file:./data/app.db"
+# Database (PGlite dataDir, relative to apps/api/)
+DATABASE_URL="pglite:./data/pglite"
 
 # Site Branding
 SITE_NAME="My Coliving Space"
@@ -192,7 +192,7 @@ VITE_BOOKING_TZ="Europe/Madrid"
 1. Check file exists: `ls -la /etc/shared-spaces/api.env`
 2. Check systemd service references it: `systemctl cat shared-spaces-api | grep EnvironmentFile`
 3. Check file has correct variable: `grep DATABASE_URL /etc/shared-spaces/api.env`
-4. If missing, add: `DATABASE_URL="file:./data/app.db"`
+4. If missing, add: `DATABASE_URL="pglite:./data/pglite"`
 
 ### "SITE_WEBAPP_URL is not a valid URL"
 

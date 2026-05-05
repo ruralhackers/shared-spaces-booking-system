@@ -28,7 +28,7 @@ df -h /
 free -h
 
 # Check database
-ls -la /opt/apps/shared-spaces-booking-system/apps/api/data/app.db
+ls -la /opt/apps/shared-spaces-booking-system/apps/api/data/pglite/
 ```
 
 ---
@@ -56,8 +56,8 @@ journalctl -u shared-spaces-api -n 100 --no-pager
 
 **Fix:**
 ```bash
-# Check SQLite file exists
-ls -la /opt/apps/shared-spaces-booking-system/apps/api/data/app.db
+# Check PGlite directory exists
+ls -la /opt/apps/shared-spaces-booking-system/apps/api/data/pglite/
 
 # If missing, create data directory and run migrations
 mkdir -p /opt/apps/shared-spaces-booking-system/apps/api/data
@@ -250,7 +250,7 @@ curl -v http://127.0.0.1:4000/api/trpc/config.siteInfo
 **Fix:**
 ```bash
 # Check database file exists and is not corrupted
-ls -la /opt/apps/shared-spaces-booking-system/apps/api/data/app.db
+ls -la /opt/apps/shared-spaces-booking-system/apps/api/data/pglite/
 
 # Run migrations if schema is out of sync
 cd /opt/apps/shared-spaces-booking-system
@@ -396,8 +396,8 @@ systemctl reload nginx
 
 **Diagnosis:**
 ```bash
-# Check SQLite file exists
-ls -la /opt/apps/shared-spaces-booking-system/apps/api/data/app.db
+# Check PGlite directory exists
+ls -la /opt/apps/shared-spaces-booking-system/apps/api/data/pglite/
 
 # Check DATABASE_URL in env
 grep DATABASE_URL /etc/shared-spaces/api.env
@@ -559,7 +559,7 @@ systemctl restart shared-spaces-api
 top -bn1 | head -20
 
 # Check database file size
-ls -lh /opt/apps/shared-spaces-booking-system/apps/api/data/app.db
+ls -lh /opt/apps/shared-spaces-booking-system/apps/api/data/pglite/
 
 # Check nginx access log for slow requests
 tail -f /var/log/nginx/access.log
@@ -665,8 +665,8 @@ bun run build
 # Create backup directory
 mkdir -p /root/backups
 
-# Copy SQLite database file
-cp /opt/apps/shared-spaces-booking-system/apps/api/data/app.db /root/backups/shared-spaces-$(date +%Y%m%d-%H%M%S).db
+# Copy PGlite database directory
+cp -r /opt/apps/shared-spaces-booking-system/apps/api/data/pglite /root/backups/shared-spaces-$(date +%Y%m%d-%H%M%S)-pglite
 
 # Verify backup
 ls -lh /root/backups/
@@ -679,7 +679,7 @@ ls -lh /root/backups/
 systemctl stop shared-spaces-api
 
 # Replace database file with backup (replace YYYYMMDD-HHMMSS with actual timestamp)
-cp /root/backups/shared-spaces-YYYYMMDD-HHMMSS.db /opt/apps/shared-spaces-booking-system/apps/api/data/app.db
+cp -r /root/backups/shared-spaces-YYYYMMDD-HHMMSS-pglite /opt/apps/shared-spaces-booking-system/apps/api/data/pglite
 
 # Start API service
 systemctl start shared-spaces-api
@@ -720,7 +720,7 @@ logrotate -d /etc/logrotate.d/shared-spaces
 cat > /root/backup-shared-spaces.sh << 'EOF'
 #!/bin/bash
 BACKUP_DIR="/root/backups"
-DB_PATH="/opt/apps/shared-spaces-booking-system/apps/api/data/app.db"
+DB_PATH="/opt/apps/shared-spaces-booking-system/apps/api/data/pglite"
 DATE=$(date +%Y%m%d-%H%M%S)
 mkdir -p $BACKUP_DIR
 cp $DB_PATH $BACKUP_DIR/shared-spaces-$DATE.db
