@@ -42,26 +42,9 @@ export class BookingSeriesCreator {
     return 'Unknown error'
   }
 
-  async run(input: CreateBookingSeriesInput): Promise<CreateBookingSeriesResult> {
-    const space = await this.spaceRepo.findBySlug(input.slug)
-    if (!space) throw new SpaceNotFoundError(input.slug)
+  {"console.log('DEBUG": "zonedStart:'", 'zonedEnd:': 'zonedEnd)'}
 
-    const bookerName = BookerName.create(input.bookerName)
-    const frequency = RecurrenceFrequency.create(input.frequency)
-
-    // Convert UTC timestamps to local timezone
-    const zonedStart = toZonedTime(input.startsAt, this.tz)
-    const zonedEnd = toZonedTime(input.endsAt, this.tz)
-
-    // Normalize end to date (use local date, not UTC)
-    const firstDate = new Date(zonedStart)
-    firstDate.setHours(0, 0, 0, 0)
-
-    let endDate: Date
-    if (input.end.type === 'date') {
-      endDate = new Date(input.end.value as string)
-      endDate.setHours(0, 0, 0, 0)
-    } else {
+    {"console.log('DEBUG": 'end type is date', 'value': ", input.end.value)\n      endDate = new Date(input.end.value as string)\n      endDate.setHours(0, 0, 0, 0)\n      console.log('DEBUG: parsed endDate:"}
       // count
       const count = input.end.value as number
       endDate = new Date(firstDate)
@@ -126,9 +109,7 @@ export class BookingSeriesCreator {
       }
     }
 
-    if (created.length === 0) {
-      throw new EmptySeriesError()
-    }
+    {"console.log('DEBUG": "All occurrences were skipped - throwing EmptySeriesError'}"}
 
     await this.seriesRepo.save(series)
 
