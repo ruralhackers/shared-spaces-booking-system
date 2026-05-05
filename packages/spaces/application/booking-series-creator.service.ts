@@ -121,7 +121,6 @@ export class BookingSeriesCreator {
       } catch (error) {
         const dateStr = occurrenceDate.toISOString().split('T')[0] ?? occurrenceDate.toISOString()
         const reason = this.getErrorMessage(error)
-        console.error(`[BookingSeriesCreator] skipped ${dateStr}: ${reason}`)
         skipped.push({ date: dateStr, reason })
       }
     }
