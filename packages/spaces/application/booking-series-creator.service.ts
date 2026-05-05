@@ -1,6 +1,6 @@
 import type { Clock } from '@dfs/common'
 import { addDays } from 'date-fns'
-import { toZonedTime } from 'date-fns-tz'
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz'
 import { BookerName } from '../domain/booker-name.vo'
 import { Booking } from '../domain/booking.entity'
 import type { BookingRepository } from '../domain/booking.repository'
@@ -54,20 +54,16 @@ export class BookingSeriesCreator {
     const zonedEnd = toZonedTime(input.endsAt, this.tz)
 
     // Normalize end to date (use local date, not UTC)
-    // Fix: Create date from local date string to avoid timezone shifts
-    const firstDateStr = zonedStart.toISOString().split('T')[0]
+    const firstDateStr = formatInTimeZone(input.startsAt, this.tz, 'yyyy-MM-dd')
     const firstDate = new Date(`${firstDateStr}T00:00:00`)
 
     let endDate: Date
     if (input.end.type === 'date') {
-      // Fix: Create date from local date string to avoid timezone shifts
       endDate = new Date(`${input.end.value as string}T00:00:00`)
     } else {
       // count
       const count = input.end.value as number
-      // Fix: Create date from local date string to avoid timezone shifts
-      const firstDateStr = firstDate.toISOString().split('T')[0]
-      endDate = new Date(`${firstDateStr}T00:00:00`)
+      endDate = new Date(`${formatInTimeZone(input.startsAt, this.tz, 'yyyy-MM-dd')}T00:00:00`)
       if (frequency.toString() === 'daily') {
         endDate = addDays(endDate, count - 1)
       } else {
