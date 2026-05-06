@@ -6,4 +6,4 @@
 ## 2. Validation
 
 - [x] 2.1 Run `bun run lint:fix && bun run typecheck && bun test` — all must pass
-- [ ] 2.2 Deploy: `ssh root@salas.espacioarroelo.es "bash /root/deploy-shared-spaces.sh"`
+- [x] 2.2 Deploy: `ssh root@salas.espacioarroelo.es "bash /root/deploy-shared-spaces.sh"`
