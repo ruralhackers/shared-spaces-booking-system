@@ -20,7 +20,8 @@
     "db:studio": "bun --env-file=../../.env.local prisma studio",
     "migrate:dev": "bun --env-file=../../.env.local prisma migrate dev",
     "migrate:deploy": "bun --env-file=../../.env.local prisma migrate deploy",
-    "migrate:reset": "bun --env-file=../../.env.local prisma migrate reset"
+    "migrate:reset": "bun --env-file=../../.env.local prisma migrate reset",
+    "db:reset": "bun -e \"import {rmSync} from 'fs'; rmSync('../../data/pglite', {recursive:true,force:true})\" && bun --env-file=../../.env.local run src/init-schema.ts"
   },
   "dependencies": {
     "@prisma/client": "7.8.0",

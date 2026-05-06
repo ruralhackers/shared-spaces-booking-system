@@ -10,6 +10,7 @@
     "webapp": "bun run -F webapp dev",
     "redis": "docker compose --env-file .env.local -f docker-compose.yml up -d",
     "db:sync": "bun run -F @dfs/database db:sync",
+    "db:reset": "bun run -F @dfs/database db:reset",
     "format": "bun x biome format --write .",
     "lint": "biome check .",
     "lint:unsafe": "biome check --write --unsafe .",
