@@ -61,6 +61,8 @@ export function HomePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-12 space-y-8">
+      <h1 className="text-2xl font-bold">Reservar ahora</h1>
+
       {error && (
         <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {t('common:couldNotLoad')}
