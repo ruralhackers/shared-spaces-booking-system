@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { env } from '@/env'
 import { api } from '@/trpc/react'
@@ -162,7 +163,7 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
 
   function handleOtherPreset() {
     setPreset('other')
-    setChosenDate('')
+    setChosenDate(localDateString(now, tz))
     setTodayFellBack(false)
     setSearchParams(null)
   }
@@ -231,12 +232,12 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
       {preset === 'other' && (
         <div className="space-y-1">
           <Label htmlFor="other-date">{t('spaces:date')}</Label>
-          <input
+          <Input
             id="other-date"
             type="date"
             value={chosenDate}
             min={localDateString(now, tz)}
-            className="border rounded px-2 py-1 text-sm"
+            className="w-auto"
             onChange={(e) => handleDatePicked(e.target.value)}
           />
         </div>
