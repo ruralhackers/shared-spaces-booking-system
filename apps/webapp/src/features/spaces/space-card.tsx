@@ -68,14 +68,19 @@ export function SpaceCard({ space, onQuickBook, onNavigate }: SpaceCardProps) {
   }
 
   function renderActions() {
+    const viewCalendarBtn = (
+      <Button size="sm" variant={hasColor ? 'secondary' : 'outline'} onClick={onNavigate}>
+        {t('spaces:viewCalendar')} →
+      </Button>
+    )
+
     if (currentStatus.state === 'free') {
       const freeMinutes = currentStatus.freeWindowMinutes ?? 0
       const visibleButtons = QUICK_DURATIONS.filter((d) => d.minutes <= freeMinutes)
-      if (visibleButtons.length === 0) return null
       return (
         // biome-ignore lint/a11y/noStaticElementInteractions: stops card click propagation
         <div
-          className="flex gap-2 mt-3"
+          className="flex flex-wrap gap-2 mt-3"
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
         >
@@ -89,26 +94,21 @@ export function SpaceCard({ space, onQuickBook, onNavigate }: SpaceCardProps) {
               {d.label}
             </Button>
           ))}
+          {viewCalendarBtn}
         </div>
       )
     }
 
-    if (currentStatus.state === 'occupied') {
-      return (
-        // biome-ignore lint/a11y/noStaticElementInteractions: stops card click propagation
-        <div
-          className="mt-3"
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
-        >
-          <Button size="sm" variant={hasColor ? 'secondary' : 'outline'} onClick={onNavigate}>
-            {t('spaces:bookLater')} →
-          </Button>
-        </div>
-      )
-    }
-
-    return null
+    return (
+      // biome-ignore lint/a11y/noStaticElementInteractions: stops card click propagation
+      <div
+        className="mt-3"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        {viewCalendarBtn}
+      </div>
+    )
   }
 
   return (

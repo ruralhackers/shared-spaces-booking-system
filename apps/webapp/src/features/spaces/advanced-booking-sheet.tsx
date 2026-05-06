@@ -123,7 +123,7 @@ export function AdvancedBookingSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+      <SheetContent side="bottom" className="max-h-[90dvh] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
             {t('booking:newBooking')} — {spaceName}

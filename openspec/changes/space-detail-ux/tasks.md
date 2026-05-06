@@ -17,4 +17,4 @@
 ## 4. Validation & Deploy
 
 - [x] 4.1 Run bun run lint:fix && bun run typecheck && bun test — all must pass
-- [ ] 4.2 Commit, push and deploy to production
+- [x] 4.2 Commit, push and deploy to production
