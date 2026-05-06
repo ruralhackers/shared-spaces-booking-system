@@ -13,7 +13,6 @@ import { AdvancedBookingSheet } from '@/features/spaces/advanced-booking-sheet'
 import { readStoredBookerName } from '@/features/spaces/booker-name-storage'
 import { CancelBookingDialog } from '@/features/spaces/cancel-booking-dialog'
 import { DayTimeline } from '@/features/spaces/day-timeline'
-import { QuickBookSheet } from '@/features/spaces/quick-book-sheet'
 import { RecurringConfirmationDialog } from '@/features/spaces/recurring-confirmation-dialog'
 import { todayInBookingTz } from '@/lib/format-time'
 import { api } from '@/trpc/react'
@@ -52,15 +51,12 @@ function SpacePage() {
     skipped: Array<{ date: string; reason: string }>
   } | null>(null)
 
-  // Quick book sheet state
-  const [quickBookOpen, setQuickBookOpen] = useState(false)
-  const [quickBookDefaults, setQuickBookDefaults] = useState<{
-    start: string
-    end: string
-  }>({ start: '', end: '' })
-
   // Advanced booking sheet state
   const [advancedOpen, setAdvancedOpen] = useState(false)
+  const [advancedDefaults, setAdvancedDefaults] = useState<{ start: string; end: string }>({
+    start: '',
+    end: ''
+  })
 
   // Cancel dialog state
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
@@ -72,7 +68,8 @@ function SpacePage() {
   const bookMutation = api.spaces.book.useMutation({
     onSuccess: () => {
       utils.spaces.dayView.invalidate({ slug, date })
-      setQuickBookOpen(false)
+      setAdvancedOpen(false)
+      setAdvancedDefaults({ start: '', end: '' })
       toast.success(t('booking:bookingConfirmed'))
     },
     onError: (e) => toast.error(e.message)
@@ -82,6 +79,7 @@ function SpacePage() {
     onSuccess: (result) => {
       utils.spaces.dayView.invalidate({ slug, date })
       setAdvancedOpen(false)
+      setAdvancedDefaults({ start: '', end: '' })
       if (result.skipped.length > 0) {
         setRecurringResult(result)
       } else {
@@ -128,14 +126,12 @@ function SpacePage() {
     const bookings = data?.bookings ?? []
     const openHours = data?.openHoursForDay ?? []
 
-    // Find next booking start time
     const startMs = new Date(`${date}T${start}:00`).getTime()
     const nextBookingStart = bookings
       .map((b) => new Date(b.startsAt).getTime())
       .filter((t) => t > startMs)
       .sort((a, b) => a - b)[0]
 
-    // Find space close time for this slot
     let closeTimeMs: number | null = null
     for (const w of openHours) {
       const wStartFrac = Number(w.start.split(':')[0]) + Number(w.start.split(':')[1]) / 60
@@ -154,8 +150,8 @@ function SpacePage() {
     const endDate = new Date(endMs)
     const end = `${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`
 
-    setQuickBookDefaults({ start, end })
-    setQuickBookOpen(true)
+    setAdvancedDefaults({ start, end })
+    setAdvancedOpen(true)
   }
 
   function handleBookingTap(bookingId: string, bookerName: string) {
@@ -215,11 +211,38 @@ function SpacePage() {
       <div className="sticky top-14 z-10 bg-background/95 backdrop-blur border-b flex items-center justify-between gap-2 -mx-6 px-6 py-2 mb-4">
         <Link
           to="/"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
         >
           <ChevronLeft className="h-3.5 w-3.5" />
           {t('allSpaces')}
         </Link>
+
+        {data && (
+          <div className="flex items-center gap-1.5 min-w-0">
+            {data.space.color && (
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+                style={{ backgroundColor: data.space.color }}
+              />
+            )}
+            <span className="text-sm font-medium truncate max-w-[140px]">
+              {data.space.displayName}
+            </span>
+          </div>
+        )}
+
+        {data ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setAdvancedOpen(true)}
+          >
+            {t('booking:advancedBooking')}
+          </Button>
+        ) : (
+          <div />
+        )}
       </div>
 
       {isLoading && !data && (
@@ -237,28 +260,7 @@ function SpacePage() {
 
       {data && (
         <>
-          <div className="mb-6">
-            <div className="flex items-center gap-2">
-              {data.space.color && (
-                <span
-                  className="inline-block w-3 h-3 rounded-full shrink-0"
-                  style={{ backgroundColor: data.space.color }}
-                />
-              )}
-              <h1 className="text-xl font-semibold">{data.space.displayName}</h1>
-              {!isToday && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs text-muted-foreground"
-                  onClick={() => setDate(today)}
-                >
-                  {t('today')}
-                </Button>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground mt-0.5">{data.space.description}</p>
-          </div>
+          <p className="text-xs text-muted-foreground mb-4 pt-2">{data.space.description}</p>
 
           {/* Date navigation */}
           <div className="flex items-center gap-3 mb-6">
@@ -276,6 +278,16 @@ function SpacePage() {
               onChange={(e) => setDate(e.target.value)}
               className="h-7 w-36 text-xs px-2"
             />
+            {!isToday && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-muted-foreground"
+                onClick={() => setDate(today)}
+              >
+                {t('today')}
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -288,13 +300,12 @@ function SpacePage() {
 
           <Separator className="mb-6" />
 
-          {/* Timeline or closed state */}
           {closedDayWeekday ? (
             <p className="text-sm text-muted-foreground py-8 text-center">
               {t('booking:closedOn', { weekday: closedDayWeekday })}
             </p>
           ) : (
-            <div className="mb-6 overflow-y-auto max-h-[600px]">
+            <div className="mb-6">
               <DayTimeline
                 bookings={data.bookings}
                 openHours={data.openHoursForDay}
@@ -305,35 +316,7 @@ function SpacePage() {
               />
             </div>
           )}
-
-          {/* Advanced booking button */}
-          <div className="mt-6 flex justify-center">
-            <Button variant="outline" onClick={() => setAdvancedOpen(true)}>
-              {t('booking:advancedBooking')}
-            </Button>
-          </div>
         </>
-      )}
-
-      {/* Quick book sheet */}
-      {data && (
-        <QuickBookSheet
-          open={quickBookOpen}
-          onOpenChange={setQuickBookOpen}
-          space={{ id: data.space.id, slug, name: data.space.displayName }}
-          defaultStart={
-            quickBookDefaults.start ? `${date}T${quickBookDefaults.start}:00` : undefined
-          }
-          defaultEnd={quickBookDefaults.end ? `${date}T${quickBookDefaults.end}:00` : undefined}
-          onConfirm={(name, startsAt, endsAt) => {
-            bookMutation.mutate({
-              slug,
-              bookerName: name,
-              startsAt: startsAt.toISOString(),
-              endsAt: endsAt.toISOString()
-            })
-          }}
-        />
       )}
 
       {/* Advanced booking sheet */}
@@ -345,6 +328,8 @@ function SpacePage() {
           spaceName={data.space.displayName}
           onSubmit={handleAdvancedSubmit}
           isPending={bookMutation.isPending || bookSeriesMutation.isPending}
+          defaultStart={advancedDefaults.start || undefined}
+          defaultEnd={advancedDefaults.end || undefined}
         />
       )}
 

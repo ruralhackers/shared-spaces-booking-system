@@ -63,3 +63,6 @@ data/
 .init-backup/
 .playwright-mcp/
 
+# Local deployment notes
+DEPLOY.local.md
+

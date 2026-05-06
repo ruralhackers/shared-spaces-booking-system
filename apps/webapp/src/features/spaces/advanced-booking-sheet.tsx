@@ -35,6 +35,8 @@ interface AdvancedBookingSheetProps {
   spaceName: string
   onSubmit: (data: AdvancedBookingFormData) => void
   isPending?: boolean
+  defaultStart?: string
+  defaultEnd?: string
 }
 
 function toBookingInstant(date: string, time: string): string {
@@ -59,12 +61,14 @@ export function AdvancedBookingSheet({
   date,
   spaceName,
   onSubmit,
-  isPending = false
+  isPending = false,
+  defaultStart,
+  defaultEnd
 }: AdvancedBookingSheetProps) {
   const { t } = useTranslation(['common', 'booking'])
   const [bookerName, setBookerName] = useState(readStoredBookerName)
-  const [startsAt, setStartsAt] = useState(currentHourString)
-  const [endsAt, setEndsAt] = useState(nextHourString)
+  const [startsAt, setStartsAt] = useState(defaultStart ?? currentHourString())
+  const [endsAt, setEndsAt] = useState(defaultEnd ?? nextHourString())
   const [isRepeat, setIsRepeat] = useState(false)
   const [frequency, setFrequency] = useState<'daily' | 'weekly'>('daily')
   const [endType, setEndType] = useState<'date' | 'count'>('date')
@@ -76,6 +80,13 @@ export function AdvancedBookingSheet({
       writeStoredBookerName(bookerName)
     }
   }, [bookerName])
+
+  useEffect(() => {
+    if (open) {
+      if (defaultStart) setStartsAt(defaultStart)
+      if (defaultEnd) setEndsAt(defaultEnd)
+    }
+  }, [open, defaultStart, defaultEnd])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
