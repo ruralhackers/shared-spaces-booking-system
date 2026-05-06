@@ -160,14 +160,14 @@ function SpacePage() {
 
   function handleBookingTap(bookingId: string, bookerName: string) {
     const stored = readStoredBookerName()
-    if (stored && stored === bookerName) {
-      const booking = data?.bookings.find((b) => b.id === bookingId)
-      setCancelBookingId(bookingId)
-      setCancelBookingSeriesId(booking?.seriesId ?? null)
-      setCancelBookingName(bookerName)
-      setCancelNameInput('')
-      setCancelDialogOpen(true)
-    }
+    if (stored && stored.toLowerCase() !== bookerName.toLowerCase()) return
+
+    const booking = data?.bookings.find((b) => b.id === bookingId)
+    setCancelBookingId(bookingId)
+    setCancelBookingSeriesId(booking?.seriesId ?? null)
+    setCancelBookingName(bookerName)
+    setCancelNameInput(stored)
+    setCancelDialogOpen(true)
   }
 
   function handleCancelConfirm(scope?: 'this' | 'thisAndFuture') {
