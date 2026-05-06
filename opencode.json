@@ -1,10 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "openrouter/anthropic/claude-sonnet-4-5",
+  "model": "anthropic/claude-sonnet-4-6",
   "mode": {
     "explore": {
       "description": "Thinking partner. Investigates the codebase, clarifies requirements, and prepares the ground for a proposal. Does NOT write code or final specs.",
-      "model": "openrouter/anthropic/claude-sonnet-4-5",
+      "model": "openrouter/anthropic/claude-sonnet-4.6",
       "temperature": 0.7,
       "reasoningEffort": "high",
       "tools": {
@@ -21,7 +21,7 @@
     },
     "plan": {
       "description": "OpenSpec plan mode. Generates the full change folder (proposal.md, design.md, specs/, tasks.md) under openspec/changes/<id>/. Loads the openspec-propose skill. Only writes inside openspec/.",
-      "model": "openrouter/anthropic/claude-sonnet-4-5",
+      "model": "openrouter/anthropic/claude-sonnet-4.6",
       "temperature": 0.2,
       "reasoningEffort": "high",
       "tools": {
@@ -38,7 +38,7 @@
     },
     "build": {
       "description": "OpenSpec build mode. Implements tasks from an existing change following hexagonal architecture and TDD. Loads the openspec-apply-change skill. ALWAYS reads openspec/changes/<id>/ before editing code.",
-      "model": "openrouter/anthropic/claude-sonnet-4-5",
+      "model": "openrouter/anthropic/claude-sonnet-4.6",
       "temperature": 0.2,
       "reasoningEffort": "medium",
       "tools": {
