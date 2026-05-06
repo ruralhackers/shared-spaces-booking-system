@@ -228,12 +228,14 @@ export function AvailabilityFinder({ now: nowProp }: AvailabilityFinderProps = {
         </p>
       )}
 
-      {preset === 'other' && chosenDate === '' && (
+      {preset === 'other' && (
         <div className="space-y-1">
           <Label htmlFor="other-date">{t('spaces:date')}</Label>
           <input
             id="other-date"
             type="date"
+            value={chosenDate}
+            min={localDateString(now, tz)}
             className="border rounded px-2 py-1 text-sm"
             onChange={(e) => handleDatePicked(e.target.value)}
           />
